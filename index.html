@@ -930,7 +930,7 @@ function nyushaRenderGoals(){
       div.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line2);cursor:pointer;';
       var done=g.done||false;
       div.innerHTML='<span style="width:22px;height:22px;border-radius:50%;border:2px solid var(--violet);display:flex;align-items:center;justify-content:center;flex:none;font-size:.85rem;background:'+(done?'var(--violet)':'transparent')+';">'+(done?'✓':'')+'</span>'+
-        '<span style="flex:1;min-width:0;"><b style="display:block;font-size:.87rem;'+(done?'text-decoration:line-through;color:var(--txt3)':'')+'">'+(g.sphere?g.sphere+' ':'')+''+g.name+'</b></span>';
+        '<span style="flex:1;min-width:0;"><b style="display:block;font-size:.87rem;'+(done?'text-decoration:line-through;color:var(--txt3)':'')+'">'+g.name+'</b>'+(g.sphere?'<small style="color:var(--txt3);font-size:.72rem;">'+g.sphere+'</small>':'')+'</span>';
       div.addEventListener('click',function(){
         var gs=_gLoad();
         if(gs[idx])gs[idx].done=!gs[idx].done;
