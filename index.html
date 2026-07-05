@@ -769,13 +769,17 @@ function nyushaRenderHabits(){
     var rows=allCard.querySelectorAll('.habit-row');
     for(var j=0;j<rows.length;j++)rows[j].remove();
     for(var k=0;k<habits.length;k++){
-      var hh=habits[k];
-      var row=document.createElement('div');
-      row.className='habit habit-row';
-      row.innerHTML='<span class="ico">'+hh.icon+'</span>'+
-        '<span class="txt"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>'+
-        '<span class="chev">›</span>';
-      allCard.appendChild(row);
+      (function(idx,hh){
+        var row=document.createElement('div');
+        row.className='habit habit-row';
+        row.setAttribute('data-hi',idx);
+        row.innerHTML='<span class="drag-handle" style="font-size:1.2rem;color:var(--txt3);cursor:grab;padding:0 6px 0 0;touch-action:none;user-select:none;">⠿</span>'+
+          '<span class="ico">'+hh.icon+'</span>'+
+          '<span class="txt"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>';
+        var handle=row.querySelector('.drag-handle');
+        handle.addEventListener('touchstart',function(e){_hDragStart(e,row,allCard);},{passive:false});
+        allCard.appendChild(row);
+      })(k,habits[k]);
     }
   }
 }
@@ -805,6 +809,53 @@ function nyushaCreateHabit(){
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
   // Hide MainButton
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.MainButton)Telegram.WebApp.MainButton.hide();}catch(e){}
+}
+function _hDragStart(e,row,container){
+  e.preventDefault();
+  var touch=e.touches[0];
+  var rect=row.getBoundingClientRect();
+  var offsetY=touch.clientY-rect.top;
+  var clone=row.cloneNode(true);
+  clone.style.cssText='position:fixed;left:'+rect.left+'px;top:'+rect.top+'px;width:'+rect.width+'px;opacity:.85;z-index:999;pointer-events:none;background:#1e1a2e;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.5);transition:none;';
+  document.body.appendChild(clone);
+  row.style.opacity='.3';
+  var placeholder=document.createElement('div');
+  placeholder.style.cssText='height:'+rect.height+'px;border-radius:10px;background:rgba(139,92,246,.15);border:1px dashed var(--violet);margin:2px 0;';
+  row.parentNode.insertBefore(placeholder,row);
+  row.style.display='none';
+  function onMove(ev){
+    var t=ev.touches[0];
+    clone.style.top=(t.clientY-offsetY)+'px';
+    var els=container.querySelectorAll('.habit-row:not([style*="display: none"]), .placeholder-drag');
+    var insertBefore=null;
+    for(var i=0;i<els.length;i++){
+      var r2=els[i].getBoundingClientRect();
+      if(t.clientY<r2.top+r2.height/2){insertBefore=els[i];break;}
+    }
+    if(insertBefore)container.insertBefore(placeholder,insertBefore);
+    else container.appendChild(placeholder);
+  }
+  function onEnd(){
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onEnd);
+    container.insertBefore(row,placeholder);
+    placeholder.remove();
+    clone.remove();
+    row.style.display='';
+    row.style.opacity='';
+    // rebuild order from DOM
+    var newHabits=[];
+    var oldHabits=_hLoad();
+    var newRows=container.querySelectorAll('.habit-row');
+    for(var i=0;i<newRows.length;i++){
+      var idx=parseInt(newRows[i].getAttribute('data-hi'),10);
+      if(oldHabits[idx])newHabits.push(oldHabits[idx]);
+    }
+    _hSave(newHabits);
+    nyushaRenderHabits();
+  }
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('touchend',onEnd);
 }
 // === END HABITS ===
 
