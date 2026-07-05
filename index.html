@@ -328,8 +328,8 @@
     <!-- ===== СЕГОДНЯ ===== -->
     <section id="s-today" class="view">
       <div class="phead">
-        <div class="greet"><span class="hi">Доброе утро,</span> <b>Татьяна</b> 🌿</div>
-        <span class="icobtn" style="margin-left:auto" aria-label="Уведомления"><span class="badge"></span>
+        <div class="greet"><span class="hi">Доброе утро</span> 🌿</div>
+        <span class="icobtn" style="margin-left:auto" aria-label="Уведомления">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5a4.5 4.5 0 0 1 9 0c0 4 1.5 5 1.5 5H3s1.5-1 1.5-5Z"/><path d="M7.5 15a1.6 1.6 0 0 0 3 0"/></svg>
         </span>
       </div>
@@ -339,26 +339,14 @@
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 7a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5V6h-3.5"/></svg>
           </span>
         </div>
-        <p class="q" id="affirm">Ты не обязана быть идеальной. Достаточно быть настоящей.</p>
+        <p class="q" id="affirm">Добавь свою первую аффирмацию в ленте мотивации.</p>
         <div class="hbot"><span class="pill">♥ Сохранить</span><label class="pill" for="r-motiv">Открыть ленту →</label></div>
       </div>
       <div class="card" id="today-habits">
         <div class="chead"><b>Привычки сегодня</b></div>
-        <input class="ctl" type="checkbox" id="showall">
-        <div class="habitlist">
-          <div class="habit"><span class="ico">🌅</span><span class="txt"><b>Утренняя практика</b><small><span class="streak">🔥12</span> дней подряд</small></span><input class="ctl chk" type="checkbox" id="c-t1" checked><label class="check" for="c-t1" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">🧘</span><span class="txt"><b>Медитация</b><small><span class="streak">🔥5</span> дней подряд</small></span><input class="ctl chk" type="checkbox" id="c-t2" checked><label class="check" for="c-t2" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">💊</span><span class="txt"><b>Витамины</b><small>каждое утро</small></span><input class="ctl chk" type="checkbox" id="c-t6" checked><label class="check" for="c-t6" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">✨</span><span class="txt"><b>Что-то новое</b><small>ещё не отмечено</small></span><input class="ctl chk" type="checkbox" id="c-t3"><label class="check" for="c-t3" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">💧</span><span class="txt"><b>Вода 8 стаканов</b><small>3 из 8</small></span><input class="ctl chk" type="checkbox" id="c-t7"><label class="check" for="c-t7" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">🚶</span><span class="txt"><b>Прогулка</b><small><span class="streak">🔥3</span> дня подряд</small></span><input class="ctl chk" type="checkbox" id="c-t4"><label class="check" for="c-t4" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">📖</span><span class="txt"><b>Чтение 30 мин</b><small>вечером</small></span><input class="ctl chk" type="checkbox" id="c-t8"><label class="check" for="c-t8" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">🤸</span><span class="txt"><b>Растяжка</b><small>ежедневно</small></span><input class="ctl chk" type="checkbox" id="c-t9"><label class="check" for="c-t9" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">📓</span><span class="txt"><b>Дневник</b><small>перед сном</small></span><input class="ctl chk" type="checkbox" id="c-t10"><label class="check" for="c-t10" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">🚫</span><span class="txt"><b>Без сахара</b><small><span class="streak">🔥7</span> дней</small></span><input class="ctl chk" type="checkbox" id="c-t11" checked><label class="check" for="c-t11" aria-label="Отметить"></label></div>
-          <div class="habit"><span class="ico">🏋️</span><span class="txt"><b>Спорт</b><small>2 из 3 на неделе</small></span><input class="ctl chk" type="checkbox" id="c-t5"><label class="check" for="c-t5" aria-label="Отметить"></label></div>
+        <div style="padding:24px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Привычки ещё не добавлены.<br>Перейди во вкладку <b style="color:var(--txt2)">Привычки</b> → добавь первую.
         </div>
-        <label class="showall-btn" for="showall"></label>
       </div>
       <div class="card">
         <div class="chead"><b>Энергия</b><label class="all" for="sheet" style="cursor:pointer">＋ отметить заряд</label></div>
@@ -367,14 +355,14 @@
             <svg width="92" height="92" viewBox="0 0 96 96">
               <defs><linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4C6BFF"/><stop offset=".5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#C24BE8"/></linearGradient></defs>
               <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
-              <circle cx="48" cy="48" r="40" fill="none" stroke="url(#ring)" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="50.3" transform="rotate(-90 48 48)"/>
+              <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="0" transform="rotate(-90 48 48)"/>
             </svg>
-            <div class="cx"><b>8<i>/10</i></b><small>Утро</small></div>
+            <div class="cx"><b style="color:var(--txt3)">—</b><small>Утро</small></div>
           </div>
           <div class="elegend">
-            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--blue)"></span><span class="n">Заряд утром</span><span class="v">8/10</span></label>
+            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--blue)"></span><span class="n">Заряд утром</span><span class="v muted">ждёт</span></label>
             <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--txt3)"></span><span class="n">Заряд вечером</span><span class="v muted">ждёт</span></label>
-            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--green)"></span><span class="n">Сон</span><span class="v">8/10</span></label>
+            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--green)"></span><span class="n">Сон</span><span class="v muted">ждёт</span></label>
           </div>
         </div>
       </div>
@@ -384,32 +372,20 @@
     <section id="s-habits" class="view">
       <div class="phead"><h2>Привычки</h2></div>
       <div class="stats3">
-        <div class="st"><b><span class="g">2/5</span></b><small>сегодня</small></div>
-        <div class="st"><b>🔥12</b><small>лучший стрик</small></div>
-        <div class="st"><b>78%</b><small>за неделю</small></div>
+        <div class="st"><b><span class="g">0/0</span></b><small>сегодня</small></div>
+        <div class="st"><b style="color:var(--txt3)">—</b><small>лучший стрик</small></div>
+        <div class="st"><b style="color:var(--txt3)">—</b><small>за неделю</small></div>
       </div>
       <div class="card">
-        <div class="chead"><b>Активность</b><label class="heatsel" for="heatmenu"><span id="heatlabel">🧘 Медитация</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4 5 6.5 7.5 4"/></svg></label></div>
-        <input class="ctl" type="checkbox" id="heatmenu">
-        <div class="hmenu">
-          <label class="hmi" for="heatmenu" data-seed="0" data-name="🧘 Медитация">🧘 Медитация</label>
-          <label class="hmi" for="heatmenu" data-seed="1" data-name="🌅 Утренняя практика">🌅 Утренняя практика</label>
-          <label class="hmi" for="heatmenu" data-seed="2" data-name="🏋️ Спорт">🏋️ Спорт</label>
-          <label class="hmi" for="heatmenu" data-seed="3" data-name="🚶 Прогулка">🚶 Прогулка</label>
-          <label class="hmi" for="heatmenu" data-seed="4" data-name="💧 Вода 8 стаканов">💧 Вода 8 стаканов</label>
-          <label class="hmi" for="heatmenu" data-seed="5" data-name="✨ Что-то новое">✨ Что-то новое</label>
+        <div style="padding:24px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Активность появится после первых отметок.<br>Добавь привычки ниже и начинай отмечать.
         </div>
-        <div class="heat" id="heat"><span class="h3"></span><span class="h4"></span><span class="h2"></span><span class="h3"></span><span class="h4"></span><span class="h1"></span><span></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h2"></span><span class="h3"></span><span></span><span class="h1"></span><span class="h2"></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span class="h4"></span><span class="h1"></span><span class="h1"></span><span class="h3"></span><span class="h2"></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h2"></span><span></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span class="h4"></span><span class="h3"></span><span></span><span class="h2"></span><span class="h2"></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span class="h3"></span><span class="h1"></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span class="h1"></span><span></span><span class="h3"></span><span class="h4"></span><span class="h2"></span><span class="h3"></span><span class="h4"></span><span class="h2"></span><span class="h1"></span><span class="h4"></span><span class="h2"></span><span class="h3"></span><span class="h4"></span><span class="h3"></span><span></span><span class="h2"></span><span class="h2"></span><span class="h3"></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h1"></span><span></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span class="h3"></span><span class="h2"></span><span class="h1"></span><span class="h3"></span><span class="h2"></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span></span><span class="h1"></span><input class="ctl hc" type="checkbox" id="d-1" checked><label class="cell" for="d-1" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-2" checked><label class="cell" for="d-2" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-3"><label class="cell" for="d-3" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-4" checked><label class="cell" for="d-4" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-5"><label class="cell" for="d-5" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-6"><label class="cell" for="d-6" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-7" checked><label class="cell" for="d-7" aria-label="Отметить день"></label></div>
-        <div class="hlegend">меньше <i style="background:rgba(139,92,246,.12)"></i><i style="background:rgba(139,92,246,.4)"></i><i style="background:rgba(139,92,246,.7)"></i><i style="background:rgba(139,92,246,1)"></i> больше</div>
-        <div class="bfhint"><b>Забыла отметить?</b> Правый столбец — последние 7 дней. Тапни клетку, чтобы отметить задним числом.</div>
       </div>
       <div class="card">
         <div class="chead"><b>Все привычки</b><span class="sub">тапни — изменить</span></div>
-        <label class="habit" for="esheet"><span class="ico">🌅</span><span class="txt"><b>Утренняя практика</b><small><span class="streak">🔥12</span> · ежедневно</small></span><span class="chev">›</span></label>
-        <label class="habit" for="esheet"><span class="ico">✨</span><span class="txt"><b>Что-то новое</b><small><span class="streak">🔥4</span> · ежедневно</small></span><span class="chev">›</span></label>
-        <label class="habit" for="esheet"><span class="ico">🧘</span><span class="txt"><b>Медитация</b><small><span class="streak">🔥5</span> · ежедневно</small></span><span class="chev">›</span></label>
-        <label class="habit" for="esheet"><span class="ico">🚶</span><span class="txt"><b>Прогулка</b><small><span class="streak">🔥3</span> · ежедневно</small></span><span class="chev">›</span></label>
-        <label class="habit" for="esheet"><span class="ico">🏋️</span><span class="txt"><b>Спорт</b><small>2 из 3 · по неделям</small></span><span class="chev">›</span></label>
+        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
+          Привычек пока нет
+        </div>
       </div>
       <label class="addhabit" for="hsheet"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg> Добавить привычку</label>
     </section>
@@ -418,35 +394,22 @@
     <section id="s-state" class="view">
       <div class="phead"><h2>Состояние</h2></div>
       <div class="card insights">
-        <div class="chead"><b>💡 Мы заметили</b><span class="sub">за 4 недели</span></div>
-        <div class="ins"><span class="ins-ic">🏋️</span><p>В дни <b>спорта</b> энергия заметно выше — <b>8.4</b> против <b>5.8</b> в остальные</p></div>
-        <div class="ins"><span class="ins-ic">🧘</span><p>После <b>медитации</b> сон крепче — <b>8.6</b> против <b>7.2</b></p></div>
-        <div class="ins"><span class="ins-ic">🌙</span><p>Сильнее всего роняет настроение <b>недосып</b></p></div>
+        <div class="chead"><b>💡 Инсайты</b><span class="sub">появятся через 7 дней</span></div>
+        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Отмечай энергию каждый день —<br>через неделю появятся первые закономерности.
+        </div>
       </div>
       <div class="card">
-        <div class="chead"><b>Заряд энергии</b><span class="sub">14 дней</span></div>
-        <svg viewBox="0 0 290 96" width="100%" height="96">
-          <defs>
-            <linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8B5CF6" stop-opacity=".45"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></linearGradient>
-            <linearGradient id="ln" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4C6BFF"/><stop offset="1" stop-color="#C24BE8"/></linearGradient>
-          </defs>
-          <path d="M8,48 38.4,29 68.9,48 99.3,10 129.8,29 160.2,67 190.6,29 221.1,10 251.5,48 281.9,29 L281.9,90 L8,90 Z" fill="url(#area)"/>
-          <polyline points="8,48 38.4,29 68.9,48 99.3,10 129.8,29 160.2,67 190.6,29 221.1,10 251.5,48 281.9,29" fill="none" stroke="url(#ln)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="8,29 38.4,29 68.9,10 99.3,29 129.8,10 160.2,48 190.6,29 221.1,10 251.5,29 281.9,10" fill="none" stroke="rgba(76,107,255,.55)" stroke-width="1.6" stroke-dasharray="3 3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <div class="clegend"><span><i style="background:var(--violet)"></i>Вечер</span><span><i style="background:rgba(76,107,255,.7)"></i>Утро</span><span style="margin-left:auto;color:var(--txt3)">Ø 7.6 · ↑ бодрее</span></div>
+        <div class="chead"><b>Заряд энергии</b><span class="sub">нет данных</span></div>
+        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
+          Начни отмечать заряд утром и вечером
+        </div>
       </div>
       <div class="card">
         <div class="chead"><b>Что влияет на энергию</b></div>
-        <div class="glabel give">↑ Даёт</div>
-        <div class="bar"><span class="bn">Спорт</span><span class="track"><span class="fill give" style="width:67%"></span></span><span class="bv give">+2.1</span></div>
-        <div class="bar"><span class="bn">Прогулка</span><span class="track"><span class="fill give" style="width:45%"></span></span><span class="bv give">+1.4</span></div>
-        <div class="bar"><span class="bn">Природа</span><span class="track"><span class="fill give" style="width:29%"></span></span><span class="bv give">+0.9</span></div>
-        <div class="divider"></div>
-        <div class="glabel take">↓ Забирает</div>
-        <div class="bar"><span class="bn">Недосып</span><span class="track"><span class="fill take" style="width:90%"></span></span><span class="bv take">−2.8</span></div>
-        <div class="bar"><span class="bn">Соцсети</span><span class="track"><span class="fill take" style="width:45%"></span></span><span class="bv take">−1.4</span></div>
-        <div class="bar"><span class="bn">Работа</span><span class="track"><span class="fill take" style="width:22%"></span></span><span class="bv take">−0.7</span></div>
+        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Данные появятся после нескольких замеров.<br>Тапни «＋ отметить заряд» на вкладке Сегодня.
+        </div>
       </div>
     </section>
 
@@ -482,28 +445,15 @@
       </div>
       <div class="card">
         <div class="chead"><b>Цели месяца</b><span class="sub">тапни — выполнено</span></div>
-        <label class="goal"><input class="ctl gchk" type="checkbox"><span class="gcheck"></span><span class="gt"><b>Зал 3× в неделю</b><small>🫀 Здоровье</small></span></label>
-        <label class="goal"><input class="ctl gchk" type="checkbox"><span class="gcheck"></span><span class="gt"><b>Запустить лендинг</b><small>💰 Пассивный доход</small></span></label>
-        <label class="goal"><input class="ctl gchk" type="checkbox" checked><span class="gcheck"></span><span class="gt"><b>Выходные без телефона</b><small>👶 Семья/дети</small></span></label>
+        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
+          Целей пока нет
+        </div>
         <label class="addhabit" for="gsheet"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg> Добавить цель</label>
       </div>
       <div class="card">
         <div class="chead"><b>🎯 Что подтянуть</b><span class="sub">просевшие сферы</span></div>
-        <div class="rec">
-          <div class="rec-h"><span class="rec-ic">💰</span><b>Пассивный доход</b><span class="rec-score">3/10</span></div>
-          <p>Самая просевшая. Начни с малого — <b>2 часа в неделю</b> на один источник: упакуй в услугу то, что уже умеешь.</p>
-        </div>
-        <div class="rec">
-          <div class="rec-h"><span class="rec-ic">🎨</span><b>Хобби</b><span class="rec-score">4/10</span></div>
-          <p>Верни одно хобби в расписание — <b>1 вечер в неделю</b> без чувства вины.</p>
-        </div>
-        <div class="rec">
-          <div class="rec-h"><span class="rec-ic">👯</span><b>Друзья</b><span class="rec-score">5/10</span></div>
-          <p>Напиши тому, с кем давно не виделась. Одна живая встреча <b>раз в 2 недели</b> заметно двигает сферу.</p>
-        </div>
-        <div class="rec">
-          <div class="rec-h"><span class="rec-ic">🌴</span><b>Отдых</b><span class="rec-score">5/10</span></div>
-          <p>Планируй отдых как встречу в календаре — хотя бы <b>полдня выходного</b> без задач и телефона.</p>
+        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Заполни колесо жизни —<br>появятся рекомендации по просевшим сферам.
         </div>
       </div>
     </section>
@@ -519,10 +469,9 @@
       <input class="ctl" type="radio" name="filt" id="filt-fav">
       <div class="mfilter"><label for="filt-all">Все</label><label for="filt-mine">Мои</label><label for="filt-fav">♥ Избранное</label></div>
       <div id="feed">
-        <div class="fcard g1" data-mine="0" data-fav="1"><p>Ты не обязана быть идеальной. Достаточно быть настоящей.</p><div class="fbot"><small>аффирмация дня</small><input class="ctl hchk" type="checkbox" id="hf1" checked><label class="heartbtn" for="hf1" aria-label="В избранное"></label></div></div>
-        <div class="fcard dark" data-mine="1" data-fav="0"><p>Я справляюсь. Шаг за шагом, в своём темпе.</p><div class="fbot"><small><span class="mine">моя</span></small><input class="ctl hchk" type="checkbox" id="hf2"><label class="heartbtn" for="hf2" aria-label="В избранное"></label></div></div>
-        <div class="fcard g2" data-mine="0" data-fav="1"><p>Отдых — это не награда за усталость, а часть работы.</p><div class="fbot"><small>забота о себе</small><input class="ctl hchk" type="checkbox" id="hf3" checked><label class="heartbtn" for="hf3" aria-label="В избранное"></label></div></div>
-        <div class="fcard dark" data-mine="0" data-fav="0"><p>Маленький шаг сегодня — это всё равно движение вперёд.</p><div class="fbot"><small style="color:var(--txt3)">мотивация</small><input class="ctl hchk" type="checkbox" id="hf4"><label class="heartbtn" for="hf4" aria-label="В избранное"></label></div></div>
+        <div style="padding:32px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.7;">
+          Лента пока пуста.<br>Нажми <b style="color:var(--txt2)">＋</b> справа вверху — добавь свою первую аффирмацию.
+        </div>
       </div>
     </section>
 
@@ -662,16 +611,16 @@
       <div class="grip"></div>
       <div class="sheet-h"><b>Колесо · Июль</b><label class="sheet-x" for="wsheet">✕</label></div>
       <div class="sheet-sub">Оцени каждую сферу от 1 до 10 · раз в месяц</div>
-      <div class="field"><div class="flabel"><span>🫀 Здоровье</span><b>7/10</b></div><input class="slider" type="range" min="1" max="10" value="7"></div>
-      <div class="field"><div class="flabel"><span>❤️ Отношения</span><b>8/10</b></div><input class="slider" type="range" min="1" max="10" value="8"></div>
-      <div class="field"><div class="flabel"><span>👨‍👩‍👧 Семья/дети</span><b>9/10</b></div><input class="slider" type="range" min="1" max="10" value="9"></div>
+      <div class="field"><div class="flabel"><span>🫀 Здоровье</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
+      <div class="field"><div class="flabel"><span>❤️ Отношения</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
+      <div class="field"><div class="flabel"><span>👨‍👩‍👧 Семья/дети</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
       <div class="field"><div class="flabel"><span>👯 Друзья</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
-      <div class="field"><div class="flabel"><span>🌱 Личностный рост</span><b>6/10</b></div><input class="slider" type="range" min="1" max="10" value="6"></div>
-      <div class="field"><div class="flabel"><span>🧘 Духовность</span><b>7/10</b></div><input class="slider" type="range" min="1" max="10" value="7"></div>
-      <div class="field"><div class="flabel"><span>💼 Работа</span><b>6/10</b></div><input class="slider" type="range" min="1" max="10" value="6"></div>
-      <div class="field"><div class="flabel"><span>💰 Пассивный доход</span><b>3/10</b></div><input class="slider" type="range" min="1" max="10" value="3"></div>
+      <div class="field"><div class="flabel"><span>🌱 Личностный рост</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
+      <div class="field"><div class="flabel"><span>🧘 Духовность</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
+      <div class="field"><div class="flabel"><span>💼 Работа</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
+      <div class="field"><div class="flabel"><span>💰 Пассивный доход</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
       <div class="field"><div class="flabel"><span>🌴 Отдых</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
-      <div class="field"><div class="flabel"><span>🎨 Хобби</span><b>4/10</b></div><input class="slider" type="range" min="1" max="10" value="4"></div>
+      <div class="field"><div class="flabel"><span>🎨 Хобби</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
       <label class="savebtn" for="wsheet">Сохранить колесо</label>
     </div>
   </div>
