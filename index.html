@@ -638,7 +638,7 @@
           </div>
         </div>
       </div>
-      <button class="savebtn" id="create-habit" type="button">Создать привычку</button>
+      <button class="savebtn" id="create-habit" type="button" onclick="nyushaCreateHabit()">Создать привычку</button>
     </div>
   </div>
 
@@ -730,6 +730,80 @@
 </div>
 
 <script>
+// === HABITS (global scope so onclick works) ===
+var _HABITS_KEY='nyusha_habits';
+var _ICONS=['💧','🧘','🏋️','📖','🚶','🌅','💊','🤸','✨'];
+function _hTodayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function _hLoad(){try{var r=localStorage.getItem(_HABITS_KEY);return r?JSON.parse(r):[];}catch(e){return[];}}
+function _hSave(h){try{localStorage.setItem(_HABITS_KEY,JSON.stringify(h));}catch(e){}}
+function nyushaRenderHabits(){
+  var habits=_hLoad();
+  var todayCard=document.getElementById('today-habits');
+  var todayEmpty=todayCard?todayCard.querySelector('[style*="padding:24px"]'):null;
+  var todayList=document.getElementById('today-habits-list');
+  var allCard=document.getElementById('all-habits-card');
+  var allEmpty=allCard?allCard.querySelector('[style*="padding:20px"]'):null;
+  if(!habits.length){
+    if(todayEmpty)todayEmpty.style.display='';
+    if(todayList)todayList.innerHTML='';
+    if(allEmpty)allEmpty.style.display='';
+    return;
+  }
+  if(todayEmpty)todayEmpty.style.display='none';
+  if(allEmpty)allEmpty.style.display='none';
+  if(todayList){
+    todayList.innerHTML='';
+    for(var i=0;i<habits.length;i++){
+      var h=habits[i];
+      var dk='nyusha_done_'+_hTodayKey()+'_'+i;
+      var done=localStorage.getItem(dk)==='1';
+      var div=document.createElement('div');
+      div.className='habit';
+      div.innerHTML='<span class="ico">'+h.icon+'</span>'+
+        '<span class="txt"><b>'+h.name+'</b><small>'+h.freq+'</small></span>'+
+        '<label onclick="nyushaToggleDone(this,\''+dk+'\')" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;font-size:1rem;">'+(done?'✓':'')+'</label>';
+      todayList.appendChild(div);
+    }
+  }
+  if(allCard){
+    var rows=allCard.querySelectorAll('.habit-row');
+    for(var j=0;j<rows.length;j++)rows[j].remove();
+    for(var k=0;k<habits.length;k++){
+      var hh=habits[k];
+      var row=document.createElement('div');
+      row.className='habit habit-row';
+      row.innerHTML='<span class="ico">'+hh.icon+'</span>'+
+        '<span class="txt"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>'+
+        '<span class="chev">›</span>';
+      allCard.appendChild(row);
+    }
+  }
+}
+function nyushaToggleDone(el,key){
+  var done=el.textContent!=='✓';
+  el.textContent=done?'✓':'';
+  try{localStorage.setItem(key,done?'1':'0');}catch(e){}
+}
+function nyushaCreateHabit(){
+  var nameEl=document.getElementById('habit-name');
+  var name=nameEl?nameEl.value.trim():'';
+  if(!name){if(nameEl)nameEl.focus();return;}
+  var iconIdx=0;
+  var radios=document.querySelectorAll('[name="hicon"]');
+  for(var i=0;i<radios.length;i++){if(radios[i].checked){iconIdx=i;break;}}
+  var freq='ежедневно';
+  if(document.getElementById('hf-days')&&document.getElementById('hf-days').checked)freq='по дням';
+  else if(document.getElementById('hf-times')&&document.getElementById('hf-times').checked)freq='N в неделю';
+  var habits=_hLoad();
+  habits.push({name:name,icon:_ICONS[iconIdx]||'✨',freq:freq});
+  _hSave(habits);
+  nyushaRenderHabits();
+  if(nameEl)nameEl.value='';
+  var hs=document.getElementById('hsheet');
+  if(hs)hs.checked=false;
+}
+// === END HABITS ===
+
 (function(){
   // Telegram Mini App init
   if(window.Telegram&&window.Telegram.WebApp){
@@ -768,91 +842,9 @@
     Array.prototype.forEach.call(document.querySelectorAll('.addf'),function(btn){btn.addEventListener('click',function(){var wrap=btn.parentElement;var inp=document.createElement('input');inp.className='newf';inp.placeholder='Свой фактор…';wrap.insertBefore(inp,btn);inp.focus();var done=false;var commit=function(){if(done)return;done=true;var v=inp.value.trim();if(v){var chip=document.createElement('span');chip.className='fchip on custom';var t=document.createElement('span');t.className='ctext';t.textContent=v;var x=document.createElement('span');x.className='cdel';x.textContent='✕';t.addEventListener('click',function(){chip.classList.toggle('on');});x.addEventListener('click',function(e){e.stopPropagation();chip.remove();});chip.appendChild(t);chip.appendChild(x);wrap.insertBefore(chip,btn);}inp.remove();};inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();commit();}});inp.addEventListener('blur',commit);});});
   }catch(e){}
 
-  // Habits localStorage
-  try{
-    var HABITS_KEY='nyusha_habits';
-    var ICONS=['💧','🧘','🏋️','📖','🚶','🌅','💊','🤸','✨'];
+  // Habits — init on load
+  nyushaRenderHabits();
 
-    function loadHabits(){
-      var raw=localStorage.getItem(HABITS_KEY);
-      return raw?JSON.parse(raw):[];
-    }
-    function saveHabits(habits){
-      localStorage.setItem(HABITS_KEY,JSON.stringify(habits));
-    }
-    function renderHabits(){
-      var habits=loadHabits();
-      // --- Today section ---
-      var todayCard=document.getElementById('today-habits');
-      var todayEmpty=todayCard?todayCard.querySelector('[style*="padding:24px"]'):null;
-      var todayList=document.getElementById('today-habits-list');
-      // --- All habits section ---
-      var allCard=document.getElementById('all-habits-card');
-      var allEmpty=allCard?allCard.querySelector('[style*="padding:20px"]'):null;
-
-      if(!habits.length){
-        if(todayEmpty)todayEmpty.style.display='';
-        if(todayList)todayList.innerHTML='';
-        if(allEmpty)allEmpty.style.display='';
-        return;
-      }
-      if(todayEmpty)todayEmpty.style.display='none';
-      if(allEmpty)allEmpty.style.display='none';
-
-      if(todayList){
-        todayList.innerHTML='';
-        habits.forEach(function(h,i){
-          var div=document.createElement('div');
-          div.className='habit';
-          var doneKey='nyusha_done_'+todayKey2()+'_'+i;
-          var done=localStorage.getItem(doneKey)==='1';
-          div.innerHTML='<span class="ico">'+h.icon+'</span>'+
-            '<span class="txt"><b>'+h.name+'</b><small>'+h.freq+'</small></span>'+
-            '<input class="ctl" type="checkbox" id="cht'+i+'"'+(done?' checked':'')+'>'+
-            '<label class="check" for="cht'+i+'" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;cursor:pointer;flex:none;" aria-label="Отметить"></label>';
-          (function(cb,k){cb.addEventListener('change',function(){localStorage.setItem(k,cb.checked?'1':'0');});})(div.querySelector('input'),doneKey);
-          todayList.appendChild(div);
-        });
-      }
-      if(allCard){
-        allCard.querySelectorAll('.habit-row').forEach(function(el){el.remove();});
-        habits.forEach(function(h){
-          var div=document.createElement('div');
-          div.className='habit habit-row';
-          div.innerHTML='<span class="ico">'+h.icon+'</span>'+
-            '<span class="txt"><b>'+h.name+'</b><small>'+h.freq+'</small></span>'+
-            '<span class="chev">›</span>';
-          allCard.appendChild(div);
-        });
-      }
-    }
-    function todayKey2(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-
-    var createBtn=document.getElementById('create-habit');
-    if(createBtn){
-      createBtn.addEventListener('click',function(){
-        var nameEl=document.getElementById('habit-name');
-        var name=nameEl?nameEl.value.trim():'';
-        if(!name){if(nameEl)nameEl.focus();return;}
-        var iconIdx=0;
-        document.querySelectorAll('[name="hicon"]').forEach(function(r,i){if(r.checked)iconIdx=i;});
-        var freq='ежедневно';
-        var freqDaily=document.getElementById('hf-daily');
-        var freqDays=document.getElementById('hf-days');
-        var freqTimes=document.getElementById('hf-times');
-        if(freqDays&&freqDays.checked)freq='по дням';
-        else if(freqTimes&&freqTimes.checked)freq='N в неделю';
-        var habits=loadHabits();
-        habits.push({name:name,icon:ICONS[iconIdx]||'✨',freq:freq});
-        saveHabits(habits);
-        renderHabits();
-        if(nameEl)nameEl.value='';
-        var hs=document.getElementById('hsheet');
-        if(hs)hs.checked=false;
-      });
-    }
-    renderHabits();
-  }catch(e){}
 
   // Energy tracking with localStorage
   try{
