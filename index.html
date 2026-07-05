@@ -735,28 +735,33 @@
 <script>
 // === ENERGY (global scope so onclick works) ===
 function nyushaSaveEnergy(){
+  // blur keyboard first
+  try{if(document.activeElement)document.activeElement.blur();}catch(e){}
+  // visual feedback
+  var btn=document.getElementById('save-energy');
+  if(btn){btn.textContent='Сохранено ✓';btn.disabled=true;}
   var val=function(id){var el=document.getElementById(id);return el?parseInt(el.value)||5:5;};
   var chips=function(prefix,count){var out=[];for(var i=1;i<=count;i++){var c=document.getElementById(prefix+i);if(c&&c.checked)out.push(c.nextElementSibling?c.nextElementSibling.textContent.trim():'');}return out;};
-  var customChips=function(wrap){var out=[];if(!wrap)return out;wrap.querySelectorAll('.custom.on .ctext').forEach(function(el){out.push(el.textContent.trim());});return out;};
-  var giveWrap=document.querySelector('.fgroup.give')&&document.querySelector('.fgroup.give').nextElementSibling;
-  var takeWrap=document.querySelector('.fgroup.take')&&document.querySelector('.fgroup.take').nextElementSibling;
   var data={
     morning:val('sl-morning'),
     sleep:val('sl-sleep'),
     evening:val('sl-evening'),
     mood:val('sl-mood'),
     note:(document.getElementById('energy-note')||{}).value||'',
-    give:chips('fg',5).concat(customChips(giveWrap)),
-    take:chips('ft',5).concat(customChips(takeWrap))
+    give:chips('fg',5),
+    take:chips('ft',5)
   };
   var key='nyusha_energy_';
   var d=new Date();
   key+=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
   try{localStorage.setItem(key,JSON.stringify(data));}catch(e){}
-  var sh=document.getElementById('sheet');
-  if(sh)sh.checked=false;
+  setTimeout(function(){
+    var sh=document.getElementById('sheet');
+    if(sh)sh.checked=false;
+    if(btn){btn.textContent='Сохранить';btn.disabled=false;}
+    try{if(window._nyushaUpdateEnergy)window._nyushaUpdateEnergy();}catch(e){}
+  },400);
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
-  try{if(window._nyushaUpdateEnergy)window._nyushaUpdateEnergy();}catch(e){}
 }
 // === END ENERGY ===
 
