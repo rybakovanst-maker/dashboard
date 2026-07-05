@@ -638,7 +638,7 @@
           </div>
         </div>
       </div>
-      <button class="savebtn" id="create-habit" type="button" onclick="nyushaCreateHabit()">Создать привычку</button>
+      <button class="savebtn" id="create-habit" type="button" onclick="nyushaCreateHabit()">Сохранить привычку</button>
     </div>
   </div>
 
@@ -806,23 +806,6 @@ function nyushaCreateHabit(){
   // Hide MainButton
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.MainButton)Telegram.WebApp.MainButton.hide();}catch(e){}
 }
-// Setup MainButton for habit sheet
-function _hSetupMainBtn(){
-  if(!window.Telegram||!Telegram.WebApp||!Telegram.WebApp.MainButton)return;
-  var mb=Telegram.WebApp.MainButton;
-  var hs=document.getElementById('hsheet');
-  if(!hs)return;
-  hs.addEventListener('change',function(){
-    if(hs.checked){
-      mb.setText('Создать привычку');
-      mb.onClick(nyushaCreateHabit);
-      mb.show();
-    }else{
-      mb.hide();
-      try{mb.offClick(nyushaCreateHabit);}catch(e){}
-    }
-  });
-}
 // === END HABITS ===
 
 (function(){
@@ -834,7 +817,6 @@ function _hSetupMainBtn(){
     tg.setHeaderColor('#09080F');
     tg.setBackgroundColor('#09080F');
   }
-  _hSetupMainBtn();
   nyushaRenderHabits();
 
   try{
