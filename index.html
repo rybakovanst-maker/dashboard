@@ -774,24 +774,49 @@ function nyushaLoadEnergyChips(){
   var take=data.take||[];
   for(var i=1;i<=5;i++){
     var fg=document.getElementById('fg'+i);
-    if(fg&&fg.nextElementSibling)fg.checked=(give.indexOf(fg.nextElementSibling.textContent.trim())>-1);
+    if(fg&&fg.nextElementSibling){
+      var inGive=give.indexOf(fg.nextElementSibling.textContent.trim())>-1;
+      fg.checked=inGive;
+      // also toggle .on class on label for reliable visual update
+      if(inGive)fg.nextElementSibling.classList.add('on');
+      else fg.nextElementSibling.classList.remove('on');
+    }
     var ft=document.getElementById('ft'+i);
-    if(ft&&ft.nextElementSibling)ft.checked=(take.indexOf(ft.nextElementSibling.textContent.trim())>-1);
+    if(ft&&ft.nextElementSibling){
+      var inTake=take.indexOf(ft.nextElementSibling.textContent.trim())>-1;
+      ft.checked=inTake;
+      if(inTake)ft.nextElementSibling.classList.add('on');
+      else ft.nextElementSibling.classList.remove('on');
+    }
   }
-  // restore sliders
-  var pairs=[{sl:'sl-morning',key:'morning'},{sl:'sl-sleep',key:'sleep'},{sl:'sl-evening',key:'evening'},{sl:'sl-mood',key:'mood'}];
+  var pairs=[{sl:'sl-morning',k:'morning'},{sl:'sl-sleep',k:'sleep'},{sl:'sl-evening',k:'evening'},{sl:'sl-mood',k:'mood'}];
   for(var j=0;j<pairs.length;j++){
     var sl=document.getElementById(pairs[j].sl);
     var lb=document.getElementById('lbl-'+pairs[j].sl.replace('sl-',''));
-    if(sl&&data[pairs[j].key]){sl.value=data[pairs[j].key];if(lb)lb.textContent=data[pairs[j].key]+'/10';}
+    if(sl&&data[pairs[j].k]){sl.value=data[pairs[j].k];if(lb)lb.textContent=data[pairs[j].k]+'/10';}
   }
   var noteEl=document.getElementById('energy-note');
-  if(noteEl&&data.note)noteEl.value=data.note;
+  if(noteEl)noteEl.value=data.note||'';
 }
-// wire sheet open → load chips
+// wire sheet open → load chips; wire label clicks → sync .on class
 (function(){
   var sh=document.getElementById('sheet');
   if(sh)sh.addEventListener('change',function(){if(sh.checked)nyushaLoadEnergyChips();});
+  // sync .on class when chips are clicked
+  var ids=['fg1','fg2','fg3','fg4','fg5','ft1','ft2','ft3','ft4','ft5'];
+  for(var i=0;i<ids.length;i++){
+    (function(id){
+      var el=document.getElementById(id);
+      if(el&&el.nextElementSibling){
+        el.nextElementSibling.addEventListener('click',function(){
+          setTimeout(function(){
+            if(el.checked)el.nextElementSibling.classList.add('on');
+            else el.nextElementSibling.classList.remove('on');
+          },0);
+        });
+      }
+    })(ids[i]);
+  }
 })();
 // === END ENERGY ===
 
