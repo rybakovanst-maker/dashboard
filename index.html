@@ -357,12 +357,12 @@
               <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
               <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="0" transform="rotate(-90 48 48)"/>
             </svg>
-            <div class="cx"><b style="color:var(--txt3)">—</b><small>Утро</small></div>
+            <div class="cx"><b id="gauge-val" style="color:var(--txt3)">—</b><small id="gauge-label">Утро</small></div>
           </div>
           <div class="elegend">
-            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--blue)"></span><span class="n">Заряд утром</span><span class="v muted">ждёт</span></label>
-            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--txt3)"></span><span class="n">Заряд вечером</span><span class="v muted">ждёт</span></label>
-            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--green)"></span><span class="n">Сон</span><span class="v muted">ждёт</span></label>
+            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--blue)"></span><span class="n">Заряд утром</span><span class="v" id="ev-morning" style="color:var(--txt3)">ждёт</span></label>
+            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--txt3)"></span><span class="n">Заряд вечером</span><span class="v" id="ev-evening" style="color:var(--txt3)">ждёт</span></label>
+            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--green)"></span><span class="n">Сон</span><span class="v" id="ev-sleep" style="color:var(--txt3)">ждёт</span></label>
           </div>
         </div>
       </div>
@@ -400,10 +400,20 @@
         </div>
       </div>
       <div class="card">
-        <div class="chead"><b>Заряд энергии</b><span class="sub">нет данных</span></div>
-        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
+        <div class="chead"><b>Заряд энергии</b><span class="sub" id="chart-sub">нет данных</span></div>
+        <div id="chart-empty" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
           Начни отмечать заряд утром и вечером
         </div>
+        <svg id="energy-chart" viewBox="0 0 290 96" width="100%" height="96" style="display:none">
+          <defs>
+            <linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8B5CF6" stop-opacity=".45"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></linearGradient>
+            <linearGradient id="ln" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4C6BFF"/><stop offset="1" stop-color="#C24BE8"/></linearGradient>
+          </defs>
+          <path id="chart-area" fill="url(#area)"/>
+          <polyline id="chart-line-evening" fill="none" stroke="url(#ln)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline id="chart-line-morning" fill="none" stroke="rgba(76,107,255,.55)" stroke-width="1.6" stroke-dasharray="3 3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div id="chart-legend" class="clegend" style="display:none"><span><i style="background:var(--violet)"></i>Вечер</span><span><i style="background:rgba(76,107,255,.7)"></i>Утро</span><span id="chart-avg" style="margin-left:auto;color:var(--txt3)"></span></div>
       </div>
       <div class="card">
         <div class="chead"><b>Что влияет на энергию</b></div>
@@ -520,24 +530,24 @@
       <div class="sheet-sub">Воскресенье, 5 июля</div>
       <div class="ssec">🌅 Утро</div>
       <div class="field">
-        <div class="flabel"><span>Заряд с утра</span><b>8/10</b></div>
-        <input class="slider" type="range" min="1" max="10" value="8">
+        <div class="flabel"><span>Заряд с утра</span><b id="lbl-morning">5/10</b></div>
+        <input class="slider" id="sl-morning" type="range" min="1" max="10" value="5">
         <div class="ticks"><span>разбита</span><span>бодра</span></div>
       </div>
       <div class="field">
-        <div class="flabel"><span>Как спалось</span><b>8/10</b></div>
-        <input class="slider" type="range" min="1" max="10" value="8">
+        <div class="flabel"><span>Как спалось</span><b id="lbl-sleep">5/10</b></div>
+        <input class="slider" id="sl-sleep" type="range" min="1" max="10" value="5">
         <div class="ticks"><span>не выспалась</span><span>отлично</span></div>
       </div>
       <div class="ssec pm">🌙 Вечер</div>
       <div class="field">
-        <div class="flabel"><span>Заряд вечером</span><b>6/10</b></div>
-        <input class="slider" type="range" min="1" max="10" value="6">
+        <div class="flabel"><span>Заряд вечером</span><b id="lbl-evening">5/10</b></div>
+        <input class="slider" id="sl-evening" type="range" min="1" max="10" value="5">
         <div class="ticks"><span>вымотана</span><span>полна сил</span></div>
       </div>
       <div class="field">
-        <div class="flabel"><span>Настроение</span><b>7/10</b></div>
-        <input class="slider" type="range" min="1" max="10" value="7">
+        <div class="flabel"><span>Настроение</span><b id="lbl-mood">5/10</b></div>
+        <input class="slider" id="sl-mood" type="range" min="1" max="10" value="5">
         <div class="ticks"><span>плохо</span><span>отлично</span></div>
       </div>
       <div class="field">
@@ -562,8 +572,8 @@
           <button class="fchip addf">＋ Добавить</button>
         </div>
       </div>
-      <input class="note" type="text" placeholder="Заметка: что повлияло на день?">
-      <label class="savebtn" for="sheet">Сохранить</label>
+      <input class="note" type="text" id="energy-note" placeholder="Заметка: что повлияло на день?">
+      <button class="savebtn" id="save-energy" type="button">Сохранить</button>
     </div>
   </div>
 
@@ -755,6 +765,131 @@
     var months=['Апрель 2026','Май 2026','Июнь 2026','Июль 2026'];var mi=3;var wm=document.getElementById('wmonth');
     Array.prototype.forEach.call(document.querySelectorAll('.mnav'),function(b){b.addEventListener('click',function(){mi=Math.max(0,Math.min(months.length-1,mi+parseInt(b.getAttribute('data-d'),10)));if(wm)wm.textContent=months[mi];});});
     Array.prototype.forEach.call(document.querySelectorAll('.addf'),function(btn){btn.addEventListener('click',function(){var wrap=btn.parentElement;var inp=document.createElement('input');inp.className='newf';inp.placeholder='Свой фактор…';wrap.insertBefore(inp,btn);inp.focus();var done=false;var commit=function(){if(done)return;done=true;var v=inp.value.trim();if(v){var chip=document.createElement('span');chip.className='fchip on custom';var t=document.createElement('span');t.className='ctext';t.textContent=v;var x=document.createElement('span');x.className='cdel';x.textContent='✕';t.addEventListener('click',function(){chip.classList.toggle('on');});x.addEventListener('click',function(e){e.stopPropagation();chip.remove();});chip.appendChild(t);chip.appendChild(x);wrap.insertBefore(chip,btn);}inp.remove();};inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();commit();}});inp.addEventListener('blur',commit);});});
+  }catch(e){}
+
+  // Energy tracking with localStorage
+  try{
+    var ENERGY_KEY='nyusha_energy_';
+    function todayKey(){var d=new Date();return ENERGY_KEY+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+    function saveEnergy(){
+      var data={
+        morning:parseInt(document.getElementById('sl-morning').value)||5,
+        sleep:parseInt(document.getElementById('sl-sleep').value)||5,
+        evening:parseInt(document.getElementById('sl-evening').value)||5,
+        mood:parseInt(document.getElementById('sl-mood').value)||5,
+        note:(document.getElementById('energy-note')||{}).value||''
+      };
+      localStorage.setItem(todayKey(),JSON.stringify(data));
+      updateEnergyDisplay();
+      // close sheet
+      var sh=document.getElementById('sheet');
+      if(sh)sh.checked=false;
+    }
+    function updateEnergyDisplay(){
+      var today=localStorage.getItem(todayKey());
+      var d=today?JSON.parse(today):null;
+      var gv=document.getElementById('gauge-val');
+      var ev_m=document.getElementById('ev-morning');
+      var ev_e=document.getElementById('ev-evening');
+      var ev_s=document.getElementById('ev-sleep');
+      var circle=document.querySelector('.gauge circle:last-child');
+      if(d){
+        if(gv){gv.style.color='';gv.innerHTML=d.morning+'<i style="font-size:.78rem;font-weight:600;color:var(--txt3);font-style:normal">/10</i>';}
+        if(ev_m){ev_m.textContent=d.morning+'/10';ev_m.style.color='';}
+        if(ev_e){ev_e.textContent=d.evening>0?d.evening+'/10':'ждёт';ev_e.style.color=d.evening>0?'':'var(--txt3)';}
+        if(ev_s){ev_s.textContent=d.sleep+'/10';ev_s.style.color='';}
+        if(circle){var off=251.3*(1-d.morning/10);circle.setAttribute('stroke-dashoffset',off);}
+      } else {
+        if(gv){gv.style.color='var(--txt3)';gv.textContent='—';}
+      }
+      updateChart();
+    }
+    function updateChart(){
+      var days=14;
+      var pts_m=[],pts_e=[];
+      var now=new Date();
+      for(var i=days-1;i>=0;i--){
+        var d2=new Date(now);d2.setDate(now.getDate()-i);
+        var key=ENERGY_KEY+d2.getFullYear()+'-'+(d2.getMonth()+1)+'-'+d2.getDate();
+        var raw=localStorage.getItem(key);
+        var val=raw?JSON.parse(raw):null;
+        pts_m.push(val?val.morning:null);
+        pts_e.push(val?val.evening:null);
+      }
+      var hasSome=pts_m.some(function(v){return v!==null;});
+      var chartEl=document.getElementById('energy-chart');
+      var emptyEl=document.getElementById('chart-empty');
+      var legendEl=document.getElementById('chart-legend');
+      var subEl=document.getElementById('chart-sub');
+      if(!hasSome){
+        if(chartEl)chartEl.style.display='none';
+        if(emptyEl)emptyEl.style.display='';
+        if(legendEl)legendEl.style.display='none';
+        return;
+      }
+      if(chartEl)chartEl.style.display='';
+      if(emptyEl)emptyEl.style.display='none';
+      if(legendEl)legendEl.style.display='';
+      var count=pts_m.filter(function(v){return v!==null;}).length;
+      if(subEl)subEl.textContent=count+' '+( count===1?'день':'дней');
+      var W=290,H=96,pad=8,inner=H-pad*2;
+      function toY(v){return v===null?null:pad+inner-(v/10)*inner;}
+      function buildPoints(arr){
+        var res=[];
+        for(var i=0;i<arr.length;i++){
+          var y=toY(arr[i]);
+          if(y!==null){var x=pad+(i/(days-1))*(W-pad*2);res.push(x+','+y);}
+        }
+        return res.join(' ');
+      }
+      var pm=buildPoints(pts_m);
+      var pe=buildPoints(pts_e);
+      var lineM=document.getElementById('chart-line-morning');
+      var lineE=document.getElementById('chart-line-evening');
+      var areaEl=document.getElementById('chart-area');
+      if(lineM)lineM.setAttribute('points',pm||'');
+      if(lineE)lineE.setAttribute('points',pe||'');
+      // area under evening line
+      if(areaEl&&pe){
+        var ptsE=pts_e.map(function(v,i){return{x:pad+(i/(days-1))*(W-pad*2),y:toY(v)};}).filter(function(p){return p.y!==null;});
+        if(ptsE.length>1){
+          var area='M'+ptsE[0].x+','+ptsE[0].y;
+          for(var j=1;j<ptsE.length;j++)area+=' L'+ptsE[j].x+','+ptsE[j].y;
+          area+=' L'+ptsE[ptsE.length-1].x+','+(H-pad)+' L'+ptsE[0].x+','+(H-pad)+' Z';
+          areaEl.setAttribute('d',area);
+        }
+      }
+      var all=pts_m.concat(pts_e).filter(function(v){return v!==null;});
+      if(all.length){
+        var avg=(all.reduce(function(a,b){return a+b;},0)/all.length).toFixed(1);
+        var avgEl=document.getElementById('chart-avg');
+        if(avgEl)avgEl.textContent='Ø '+avg;
+      }
+    }
+    // slider labels sync
+    var sliders=[
+      {sl:'sl-morning',lb:'lbl-morning'},
+      {sl:'sl-sleep',lb:'lbl-sleep'},
+      {sl:'sl-evening',lb:'lbl-evening'},
+      {sl:'sl-mood',lb:'lbl-mood'}
+    ];
+    sliders.forEach(function(pair){
+      var sl=document.getElementById(pair.sl);
+      var lb=document.getElementById(pair.lb);
+      if(sl&&lb){
+        sl.addEventListener('input',function(){lb.textContent=sl.value+'/10';});
+        // load saved value
+        var today=localStorage.getItem(todayKey());
+        if(today){
+          var data=JSON.parse(today);
+          var key=pair.sl.replace('sl-','');
+          if(data[key]){sl.value=data[key];lb.textContent=data[key]+'/10';}
+        }
+      }
+    });
+    var saveBtn=document.getElementById('save-energy');
+    if(saveBtn)saveBtn.addEventListener('click',saveEnergy);
+    updateEnergyDisplay();
   }catch(e){}
 })();
 </script>
