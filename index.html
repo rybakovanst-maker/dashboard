@@ -756,8 +756,7 @@ function nyushaSaveEnergy(){
   var sh=document.getElementById('sheet');
   if(sh)sh.checked=false;
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
-  // trigger display update if function exists
-  try{updateEnergyDisplay();}catch(e){}
+  try{if(window._nyushaUpdateEnergy)window._nyushaUpdateEnergy();}catch(e){}
 }
 // === END ENERGY ===
 
@@ -1174,6 +1173,7 @@ function nyushaCreateGoal(){
       }
     });
     updateEnergyDisplay();
+    window._nyushaUpdateEnergy=updateEnergyDisplay;
   }catch(e){}
 })();
 </script>
