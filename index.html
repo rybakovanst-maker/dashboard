@@ -454,11 +454,12 @@
         </svg>
         <div class="rlegend"><span><i style="background:var(--violet)"></i>Этот месяц</span><span><i class="dash"></i>Прошлый</span></div>
       </div>
-      <div class="card">
+      <div class="card" id="goals-card">
         <div class="chead"><b>Цели месяца</b><span class="sub">тапни — выполнено</span></div>
-        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
+        <div id="goals-empty" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
           Целей пока нет
         </div>
+        <div id="goals-list"></div>
         <label class="addhabit" for="gsheet"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg> Добавить цель</label>
       </div>
       <div class="card">
@@ -671,7 +672,7 @@
       <div class="sheet-h"><b>Новая цель</b><label class="sheet-x" for="gsheet">✕</label></div>
       <div class="field">
         <div class="flabel"><span>Цель на месяц</span></div>
-        <input class="note" type="text" placeholder="Например, Читать 20 минут в день" style="margin-top:0">
+        <input class="note" id="goal-name" type="text" placeholder="Например, Читать 20 минут в день" style="margin-top:0">
       </div>
       <div class="field">
         <div class="flabel"><span>Сфера (по желанию)</span></div>
@@ -688,7 +689,7 @@
           <input class="ctl fchk" type="radio" name="gsphere" id="gs10"><label class="fchip" for="gs10">🎨 Хобби</label>
         </div>
       </div>
-      <label class="savebtn" for="gsheet">Добавить цель</label>
+      <button class="savebtn" type="button" onclick="nyushaCreateGoal()">Добавить цель</button>
     </div>
   </div>
 
@@ -910,6 +911,54 @@ function _hDragStart(e,row,container){
 }
 // === END HABITS ===
 
+// === GOALS ===
+var _GOALS_KEY='nyusha_goals';
+function _gLoad(){try{var r=localStorage.getItem(_GOALS_KEY);return r?JSON.parse(r):[];}catch(e){return[];}}
+function _gSave(g){try{localStorage.setItem(_GOALS_KEY,JSON.stringify(g));}catch(e){}}
+function nyushaRenderGoals(){
+  var goals=_gLoad();
+  var empty=document.getElementById('goals-empty');
+  var list=document.getElementById('goals-list');
+  if(!list)return;
+  list.innerHTML='';
+  if(!goals.length){if(empty)empty.style.display='';return;}
+  if(empty)empty.style.display='none';
+  for(var i=0;i<goals.length;i++){
+    (function(idx,g){
+      var div=document.createElement('div');
+      div.className='goal';
+      div.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line2);cursor:pointer;';
+      var done=g.done||false;
+      div.innerHTML='<span style="width:22px;height:22px;border-radius:50%;border:2px solid var(--violet);display:flex;align-items:center;justify-content:center;flex:none;font-size:.85rem;background:'+(done?'var(--violet)':'transparent')+';">'+(done?'✓':'')+'</span>'+
+        '<span style="flex:1;min-width:0;"><b style="display:block;font-size:.87rem;'+(done?'text-decoration:line-through;color:var(--txt3)':'')+'">'+(g.sphere?g.sphere+' ':'')+''+g.name+'</b></span>';
+      div.addEventListener('click',function(){
+        var gs=_gLoad();
+        if(gs[idx])gs[idx].done=!gs[idx].done;
+        _gSave(gs);
+        nyushaRenderGoals();
+        try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.impactOccurred('light');}catch(e){}
+      });
+      list.appendChild(div);
+    })(i,goals[i]);
+  }
+}
+function nyushaCreateGoal(){
+  var nameEl=document.getElementById('goal-name');
+  var name=nameEl?nameEl.value.trim():'';
+  if(!name)name='Цель';
+  var sphereEl=document.querySelector('[name="gsphere"]:checked');
+  var sphereLabel=sphereEl?sphereEl.nextElementSibling.textContent.trim():'';
+  var goals=_gLoad();
+  goals.push({name:name,sphere:sphereLabel,done:false});
+  _gSave(goals);
+  nyushaRenderGoals();
+  if(nameEl)nameEl.value='';
+  var gs=document.getElementById('gsheet');
+  if(gs)gs.checked=false;
+  try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
+}
+// === END GOALS ===
+
 (function(){
   // Telegram Mini App init
   if(window.Telegram&&window.Telegram.WebApp){
@@ -921,6 +970,7 @@ function _hDragStart(e,row,container){
     try{tg.MainButton.hide();}catch(e){}
   }
   nyushaRenderHabits();
+  nyushaRenderGoals();
 
   try{
     var affirm=document.getElementById('affirm');
