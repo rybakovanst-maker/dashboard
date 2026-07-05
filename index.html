@@ -577,7 +577,7 @@
         </div>
       </div>
       <input class="note" type="text" id="energy-note" placeholder="Заметка: что повлияло на день?">
-      <button class="savebtn" id="save-energy" type="button">Сохранить</button>
+      <button class="savebtn" id="save-energy" type="button" onclick="nyushaSaveEnergy()">Сохранить</button>
     </div>
   </div>
 
@@ -733,6 +733,34 @@
 </div>
 
 <script>
+// === ENERGY (global scope so onclick works) ===
+function nyushaSaveEnergy(){
+  var val=function(id){var el=document.getElementById(id);return el?parseInt(el.value)||5:5;};
+  var chips=function(prefix,count){var out=[];for(var i=1;i<=count;i++){var c=document.getElementById(prefix+i);if(c&&c.checked)out.push(c.nextElementSibling?c.nextElementSibling.textContent.trim():'');}return out;};
+  var customChips=function(wrap){var out=[];if(!wrap)return out;wrap.querySelectorAll('.custom.on .ctext').forEach(function(el){out.push(el.textContent.trim());});return out;};
+  var giveWrap=document.querySelector('.fgroup.give')&&document.querySelector('.fgroup.give').nextElementSibling;
+  var takeWrap=document.querySelector('.fgroup.take')&&document.querySelector('.fgroup.take').nextElementSibling;
+  var data={
+    morning:val('sl-morning'),
+    sleep:val('sl-sleep'),
+    evening:val('sl-evening'),
+    mood:val('sl-mood'),
+    note:(document.getElementById('energy-note')||{}).value||'',
+    give:chips('fg',5).concat(customChips(giveWrap)),
+    take:chips('ft',5).concat(customChips(takeWrap))
+  };
+  var key='nyusha_energy_';
+  var d=new Date();
+  key+=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  try{localStorage.setItem(key,JSON.stringify(data));}catch(e){}
+  var sh=document.getElementById('sheet');
+  if(sh)sh.checked=false;
+  try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
+  // trigger display update if function exists
+  try{updateEnergyDisplay();}catch(e){}
+}
+// === END ENERGY ===
+
 // === HABITS (global scope so onclick works) ===
 var _HABITS_KEY='nyusha_habits';
 var _ICONS=['💧','🧘','🏋️','📖','🚶','🌅','💊','🤸','✨'];
@@ -1145,8 +1173,6 @@ function nyushaCreateGoal(){
         }
       }
     });
-    var saveBtn=document.getElementById('save-energy');
-    if(saveBtn)saveBtn.addEventListener('click',saveEnergy);
     updateEnergyDisplay();
   }catch(e){}
 })();
