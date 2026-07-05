@@ -763,6 +763,36 @@ function nyushaSaveEnergy(){
   },400);
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
 }
+function nyushaLoadEnergyChips(){
+  var key='nyusha_energy_';
+  var d=new Date();
+  key+=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  var raw=localStorage.getItem(key);
+  if(!raw)return;
+  var data;try{data=JSON.parse(raw);}catch(e){return;}
+  var give=data.give||[];
+  var take=data.take||[];
+  for(var i=1;i<=5;i++){
+    var fg=document.getElementById('fg'+i);
+    if(fg&&fg.nextElementSibling)fg.checked=(give.indexOf(fg.nextElementSibling.textContent.trim())>-1);
+    var ft=document.getElementById('ft'+i);
+    if(ft&&ft.nextElementSibling)ft.checked=(take.indexOf(ft.nextElementSibling.textContent.trim())>-1);
+  }
+  // restore sliders
+  var pairs=[{sl:'sl-morning',key:'morning'},{sl:'sl-sleep',key:'sleep'},{sl:'sl-evening',key:'evening'},{sl:'sl-mood',key:'mood'}];
+  for(var j=0;j<pairs.length;j++){
+    var sl=document.getElementById(pairs[j].sl);
+    var lb=document.getElementById('lbl-'+pairs[j].sl.replace('sl-',''));
+    if(sl&&data[pairs[j].key]){sl.value=data[pairs[j].key];if(lb)lb.textContent=data[pairs[j].key]+'/10';}
+  }
+  var noteEl=document.getElementById('energy-note');
+  if(noteEl&&data.note)noteEl.value=data.note;
+}
+// wire sheet open → load chips
+(function(){
+  var sh=document.getElementById('sheet');
+  if(sh)sh.addEventListener('change',function(){if(sh.checked)nyushaLoadEnergyChips();});
+})();
 // === END ENERGY ===
 
 // === HABITS (global scope so onclick works) ===
