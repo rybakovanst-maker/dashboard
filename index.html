@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Личный дашборд</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root{
+      --bg:#09080F;--card:#161327;--card2:#1C1830;
+      --line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.05);
+      --txt:#F6F5FB;--txt2:#A7A2BC;--txt3:#6F6A85;
+      --blue:#4C6BFF;--violet:#8B5CF6;--pink:#C24BE8;--green:#37D9A6;--warm:#FF7A8A;
+      --grad:linear-gradient(135deg,#4C6BFF 0%,#8B5CF6 52%,#C24BE8 100%);
+      --sans:'Segoe UI Variable Display','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+    html,body{
+      margin:0;padding:0;
+      height:100%;
+      overflow:hidden;
+      font-family:var(--sans);
+      background:var(--bg);
+      color:var(--txt);
+      -webkit-font-smoothing:antialiased;
+    }
+    .screen{
+      position:fixed;inset:0;
+      display:flex;flex-direction:column;
+      background:linear-gradient(180deg,#0C0A16,#0A0813);
+      overflow:hidden;
+    }
+    .ctl{position:absolute;width:0;height:0;opacity:0;pointer-events:none;}
+
+    .content{flex:1;overflow-y:auto;padding:2px 17px 10px;scrollbar-width:none;}
+    .content::-webkit-scrollbar{display:none;}
+
+    .view{display:none;}
+    #r-today:checked ~ .content #s-today,
+    #r-habits:checked ~ .content #s-habits,
+    #r-state:checked ~ .content #s-state,
+    #r-wheel:checked ~ .content #s-wheel,
+    #r-motiv:checked ~ .content #s-motiv{display:block;animation:fadein .28s ease;}
+    @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion:reduce){.view{animation:none!important;}}
+
+    .phead{display:flex;align-items:center;justify-content:space-between;padding:8px 2px 14px;gap:12px;}
+    .phead h2{margin:0;font-size:1.34rem;font-weight:800;letter-spacing:-.02em;}
+    .phead .greet{font-size:.82rem;font-weight:700;letter-spacing:-.01em;}
+    .phead .greet .hi{color:var(--txt2);font-weight:500;}
+    .phead .greet b{font-weight:700;}
+    .icobtn{width:40px;height:40px;border-radius:13px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--txt);flex:none;position:relative;cursor:pointer;}
+    .icobtn.grad{background:var(--grad);border-color:transparent;box-shadow:0 8px 18px -8px rgba(139,92,246,.8);}
+    .icobtn .badge{position:absolute;top:9px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 2px var(--card);}
+
+    .hero{position:relative;border-radius:20px;padding:14px 16px 13px;overflow:hidden;background:var(--grad);box-shadow:0 16px 32px -16px rgba(120,70,240,.55);}
+    .hero::after{content:"";position:absolute;right:-38px;top:-48px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.26),transparent 68%);}
+    .hero .htop{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;}
+    .hero .label{font-size:.76rem;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.92);display:flex;align-items:center;gap:6px;}
+    .hero .q{position:relative;z-index:1;margin:9px 0 12px;font-size:.98rem;line-height:1.3;font-weight:600;max-width:26ch;transition:opacity .18s ease;}
+    .hero .hbot{position:relative;z-index:1;display:flex;gap:8px;}
+    .hero .pill{display:inline-flex;align-items:center;gap:6px;font-size:.73rem;font-weight:600;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);padding:5px 11px;border-radius:999px;color:#fff;cursor:pointer;}
+    .hero .roundbtn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);display:grid;place-items:center;cursor:pointer;}
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:13px;}
+    .chead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .chead b{font-size:.98rem;font-weight:700;}
+    .chead .sub{font-size:.75rem;font-weight:600;color:var(--txt3);}
+    .chead .all{font-size:.75rem;font-weight:600;color:var(--violet);}
+
+    .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:2px;}
+    .st{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 8px;text-align:center;}
+    .st b{display:block;font-size:1.2rem;font-weight:800;line-height:1;margin-bottom:5px;}
+    .st b .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+    .st small{font-size:.66rem;color:var(--txt3);}
+
+    .heat{display:grid;grid-template-rows:repeat(7,10px);grid-auto-flow:column;grid-auto-columns:10px;gap:4px;overflow-x:auto;}
+    .heat span{width:10px;height:10px;border-radius:2px;background:rgba(139,92,246,.10);}
+    .heat span.h1{background:rgba(139,92,246,.24);}
+    .heat span.h2{background:rgba(139,92,246,.44);}
+    .heat span.h3{background:rgba(139,92,246,.70);}
+    .heat span.h4{background:rgba(139,92,246,1);}
+    .heat .cell{width:10px;height:10px;border-radius:2px;background:rgba(139,92,246,.14);cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);}
+    .heat .hc:checked + .cell{background:rgba(139,92,246,1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);}
+    .hlegend{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-top:11px;font-size:.68rem;color:var(--txt3);}
+    .hlegend i{width:10px;height:10px;border-radius:2px;}
+    .bfhint{font-size:.68rem;color:var(--txt3);margin-top:9px;line-height:1.45;}
+    .bfhint b{color:var(--txt2);font-weight:600;}
+    .heatsel{display:flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;color:var(--txt);cursor:pointer;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;}
+    .hmenu{display:none;flex-direction:column;gap:1px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:13px;}
+    #heatmenu:checked ~ .hmenu{display:flex;}
+    .hmi{padding:9px 10px;border-radius:8px;font-size:.83rem;color:var(--txt2);cursor:pointer;}
+    .hmi:hover{background:rgba(255,255,255,.05);color:var(--txt);}
+
+    .energy{display:flex;gap:18px;align-items:center;}
+    .gauge{position:relative;flex:none;width:92px;height:92px;}
+    .gauge .cx{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .gauge .cx b{font-size:1.45rem;font-weight:800;line-height:1;}
+    .gauge .cx b i{font-size:.78rem;font-weight:600;color:var(--txt3);font-style:normal;}
+    .gauge .cx small{font-size:.64rem;color:var(--txt2);letter-spacing:.06em;text-transform:uppercase;margin-top:3px;}
+    .elegend{flex:1;display:flex;flex-direction:column;gap:11px;min-width:0;}
+    .erow{display:flex;align-items:center;gap:9px;font-size:.85rem;}
+    .erow .d{width:9px;height:9px;border-radius:50%;flex:none;}
+    .erow .v{margin-left:auto;font-weight:700;}
+    .erow .v.muted{color:var(--txt3);font-weight:600;}
+    .erow .n{color:var(--txt2);}
+
+    .habit{display:flex;align-items:center;gap:11px;padding:9px 0;}
+    .habit + .habit{border-top:1px solid var(--line2);}
+    .habit .ico{width:39px;height:39px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:1.05rem;background:var(--card2);border:1px solid var(--line);}
+    .habit .txt{flex:1;min-width:0;}
+    .habit .txt b{display:block;font-size:.88rem;font-weight:600;}
+    .habit .txt small{font-size:.72rem;color:var(--txt3);}
+    .streak{color:var(--green);font-weight:700;}
+    .check{width:26px;height:26px;border-radius:50%;flex:none;display:grid;place-items:center;cursor:pointer;border:2px solid var(--line);transition:transform .1s ease;}
+    .check:active{transform:scale(.86);}
+    .check::after{content:"";width:12px;height:7px;border-left:2.4px solid #fff;border-bottom:2.4px solid #fff;transform:rotate(-45deg) translate(1px,-1px);opacity:0;}
+    .chk:checked + .check{border-color:transparent;background:var(--grad);box-shadow:0 6px 14px -5px rgba(139,92,246,.7);}
+    .chk:checked + .check::after{opacity:1;}
+    .habitlist{display:flex;flex-direction:column;overflow:hidden;max-height:352px;transition:max-height .35s ease;}
+    #showall:checked ~ .habitlist{max-height:1600px;}
+    .habitlist .habit{border-top:1px solid var(--line2);}
+    .showall-btn{display:flex;align-items:center;justify-content:center;margin-top:12px;padding-top:13px;border-top:1px solid var(--line2);color:var(--violet);font-size:.8rem;font-weight:600;cursor:pointer;}
+    .showall-btn::after{content:"Показать все (11)  ▾";}
+    #showall:checked ~ .showall-btn::after{content:"Свернуть  ▴";}
+    .addhabit{display:flex;align-items:center;justify-content:center;gap:7px;margin:16px auto 4px;padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--txt2);font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;}
+    .addhabit:active{transform:scale(.97);}
+
+    .clegend{display:flex;gap:16px;margin-top:12px;font-size:.76rem;color:var(--txt2);flex-wrap:wrap;}
+    .clegend span{display:flex;align-items:center;gap:6px;}
+    .clegend i{width:14px;height:3px;border-radius:2px;}
+
+    .glabel{font-size:.74rem;font-weight:700;margin:4px 0 8px;}
+    .glabel.take{color:var(--warm);}
+    .glabel.give{color:var(--green);}
+    .bar{display:flex;align-items:center;gap:10px;margin:8px 0;}
+    .bar .bn{width:72px;font-size:.8rem;color:var(--txt2);flex:none;}
+    .bar .track{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden;}
+    .bar .fill{height:100%;border-radius:4px;}
+    .fill.take{background:linear-gradient(90deg,#FF7A8A,#E8635C);}
+    .fill.give{background:linear-gradient(90deg,#37D9A6,#3FB6E8);}
+    .bar .bv{flex:none;width:38px;text-align:right;font-size:.75rem;font-weight:700;font-variant-numeric:tabular-nums;}
+    .bar .bv.give{color:var(--green);}
+    .bar .bv.take{color:var(--warm);}
+    .divider{height:1px;background:var(--line2);margin:14px 0;}
+
+    .insights{background:linear-gradient(160deg,rgba(139,92,246,.14),var(--card) 60%);border-color:rgba(139,92,246,.3);}
+    .ins{display:flex;gap:11px;align-items:flex-start;padding:11px 0;}
+    .ins + .ins{border-top:1px solid var(--line2);}
+    .ins-ic{width:32px;height:32px;border-radius:9px;flex:none;display:grid;place-items:center;font-size:.95rem;background:rgba(139,92,246,.2);}
+    .ins p{margin:0;font-size:.86rem;line-height:1.42;color:var(--txt2);}
+    .ins p b{color:var(--txt);font-weight:700;}
+
+    .radar{display:block;width:100%;max-width:290px;margin:0 auto;}
+    .rlegend{display:flex;gap:16px;justify-content:center;margin-top:8px;font-size:.74rem;color:var(--txt2);}
+    .rlegend span{display:flex;align-items:center;gap:6px;}
+    .rlegend i{width:14px;height:3px;border-radius:2px;display:inline-block;}
+    .rlegend i.dash{background:repeating-linear-gradient(90deg,var(--txt3) 0 3px,transparent 3px 6px);height:2px;}
+    .rmovers{display:flex;flex-direction:column;gap:5px;margin-top:12px;font-size:.76rem;}
+    .rmovers div{display:flex;gap:7px;}
+    .rmovers .up{color:var(--green);font-weight:700;flex:none;}
+    .rmovers .dn{color:var(--warm);font-weight:700;flex:none;}
+    .rmovers .val{color:var(--txt2);}
+    .wa-row{display:flex;align-items:center;gap:16px;}
+    .wa-avg{flex:none;text-align:center;min-width:70px;}
+    .wa-avg b{display:block;font-size:1.9rem;font-weight:800;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+    .wa-avg small{font-size:.64rem;color:var(--txt3);}
+    .wa-trend{flex:1;display:flex;flex-direction:column;gap:7px;align-items:flex-start;}
+    .wa-trend .up{font-size:.74rem;font-weight:700;color:var(--green);}
+    .wa-two{display:flex;gap:16px;font-size:.83rem;color:var(--txt);}
+    .wa-two > div{flex:1;}
+    .wa-h{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+    .wa-h.up{color:var(--green);}
+    .wa-h.dn{color:var(--warm);}
+    .wa-move{font-size:.82rem;color:var(--txt2);margin:9px 0 0;display:flex;gap:8px;}
+    .wa-move .up{color:var(--green);font-weight:700;flex:none;}
+    .wa-move .dn{color:var(--warm);font-weight:700;flex:none;}
+    .rec{padding:12px 0;}
+    .rec + .rec{border-top:1px solid var(--line2);}
+    .rec-h{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+    .rec-ic{font-size:1.05rem;}
+    .rec-h b{font-size:.92rem;font-weight:700;flex:1;}
+    .rec-score{font-size:.72rem;font-weight:700;color:var(--warm);background:rgba(255,122,138,.14);padding:3px 9px;border-radius:999px;}
+    .rec p{margin:0;font-size:.85rem;line-height:1.46;color:var(--txt2);}
+    .rec p b{color:var(--txt);font-weight:600;}
+
+    .goal{display:flex;align-items:center;gap:11px;padding:11px 0;}
+    .goal + .goal{border-top:1px solid var(--line2);}
+    .goal .gt{flex:1;min-width:0;}
+    .goal .gt b{display:block;font-size:.87rem;font-weight:600;}
+    .goal .gt small{font-size:.71rem;color:var(--txt3);}
+    .tag{font-size:.64rem;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;flex:none;}
+    .s-done{color:var(--green);background:rgba(55,217,166,.14);}
+    .s-prog{color:#C9B8FF;background:rgba(139,92,246,.18);}
+    .s-todo{color:var(--txt3);background:rgba(255,255,255,.06);}
+    .goal{cursor:pointer;}
+    .gcheck{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;}
+    .gcheck::after{content:"";width:11px;height:6px;border-left:2.2px solid #fff;border-bottom:2.2px solid #fff;transform:rotate(-45deg) translate(1px,-1px);opacity:0;}
+    .gchk:checked + .gcheck{border-color:transparent;background:var(--grad);}
+    .gchk:checked + .gcheck::after{opacity:1;}
+    .gchk:checked ~ .gt b{color:var(--txt3);text-decoration:line-through;}
+    .monthsel{display:flex;align-items:center;gap:9px;}
+    .mnav{width:28px;height:28px;border-radius:9px;background:var(--card);border:1px solid var(--line);color:var(--txt2);cursor:pointer;font-size:1rem;line-height:1;display:grid;place-items:center;font-family:inherit;}
+    .monthsel #wmonth{font-size:.82rem;font-weight:700;min-width:92px;text-align:center;}
+
+    .mfilter{display:flex;gap:8px;margin-bottom:13px;}
+    .mfilter label{border:1px solid var(--line);background:var(--card);color:var(--txt2);font-size:.77rem;font-weight:600;padding:6px 13px;border-radius:999px;cursor:pointer;}
+    #filt-all:checked ~ .mfilter [for="filt-all"],
+    #filt-mine:checked ~ .mfilter [for="filt-mine"],
+    #filt-fav:checked ~ .mfilter [for="filt-fav"]{background:var(--grad);color:#fff;border-color:transparent;}
+    #filt-mine:checked ~ #feed .fcard:not([data-mine="1"]){display:none;}
+    #filt-fav:checked ~ #feed .fcard:not([data-fav="1"]){display:none;}
+    .mine{font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#C9B8FF;background:rgba(139,92,246,.18);padding:3px 8px;border-radius:999px;}
+    .fcard{border-radius:18px;padding:16px;margin-bottom:11px;position:relative;overflow:hidden;}
+    .fcard.g1{background:var(--grad);color:#fff;box-shadow:0 16px 32px -18px rgba(120,70,240,.6);}
+    .fcard.g2{background:linear-gradient(135deg,#C24BE8,#7A4FF0 60%,#4C6BFF);color:#fff;box-shadow:0 16px 32px -18px rgba(194,75,232,.5);}
+    .fcard.dark{background:var(--card);border:1px solid var(--line);}
+    .fcard p{margin:0;font-size:1.02rem;line-height:1.4;font-weight:600;position:relative;z-index:1;}
+    .fcard.dark p{font-weight:500;}
+    .fbot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;position:relative;z-index:1;}
+    .fbot small{font-size:.72rem;opacity:.85;}
+    .heartbtn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);cursor:pointer;font-size:.95rem;color:#fff;}
+    .heartbtn::after{content:"♡";}
+    .hchk:checked + .heartbtn::after{content:"♥";}
+    .hchk:checked + .heartbtn{background:#fff;color:var(--pink);}
+    .fcard.dark .heartbtn{background:rgba(255,255,255,.06);color:var(--txt2);}
+    .fcard.dark .hchk:checked + .heartbtn{background:#fff;color:var(--pink);}
+    .fcard.g1::after,.fcard.g2::after{content:"";position:absolute;right:-30px;top:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 68%);}
+    .backrow{display:flex;align-items:center;gap:8px;color:var(--txt2);font-size:.85rem;font-weight:600;cursor:pointer;padding:4px 2px 10px;}
+
+    .nav{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;flex:none;padding:11px 6px calc(6px + env(safe-area-inset-bottom));border-top:1px solid var(--line2);background:#0A0813;}
+    .nav label{display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--txt3);font-size:.66rem;font-weight:600;cursor:pointer;}
+    .nav .ni{width:44px;height:33px;border-radius:12px;display:grid;place-items:center;color:inherit;}
+    #r-today:checked ~ .nav [for="r-today"],
+    #r-habits:checked ~ .nav [for="r-habits"],
+    #r-state:checked ~ .nav [for="r-state"],
+    #r-wheel:checked ~ .nav [for="r-wheel"]{color:var(--txt);}
+    #r-today:checked ~ .nav [for="r-today"] .ni,
+    #r-habits:checked ~ .nav [for="r-habits"] .ni,
+    #r-state:checked ~ .nav [for="r-state"] .ni,
+    #r-wheel:checked ~ .nav [for="r-wheel"] .ni{background:var(--grad);color:#fff;box-shadow:0 8px 18px -6px rgba(139,92,246,.8);}
+
+    .sheet-wrap{position:absolute;inset:0;z-index:30;display:none;}
+    #sheet:checked ~ #w-pm{display:block;}
+    #hsheet:checked ~ #w-habit{display:block;}
+    #wsheet:checked ~ #w-wheel{display:block;}
+    #gsheet:checked ~ #w-goal{display:block;}
+    #esheet:checked ~ #w-edit{display:block;}
+    .ssec{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--txt2);margin:8px 0 2px;}
+    .ssec.pm{margin-top:20px;padding-top:16px;border-top:1px solid var(--line2);}
+    .sheet-back{position:absolute;inset:0;background:rgba(4,3,10,.62);}
+    .sheet{position:absolute;left:0;right:0;bottom:0;max-height:92%;overflow-y:auto;background:#14111F;border:1px solid var(--line);border-bottom:none;border-radius:24px 24px 0 0;padding:8px 18px calc(22px + env(safe-area-inset-bottom));animation:slideup .28s ease;scrollbar-width:none;}
+    .sheet::-webkit-scrollbar{display:none;}
+    @keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
+    @media (prefers-reduced-motion:reduce){.sheet{animation:none;}}
+    .grip{width:38px;height:4px;border-radius:2px;background:var(--line);margin:6px auto 14px;}
+    .sheet-h{display:flex;justify-content:space-between;align-items:center;}
+    .sheet-h b{font-size:1.18rem;font-weight:800;}
+    .sheet-x{width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:grid;place-items:center;color:var(--txt2);cursor:pointer;font-size:.8rem;}
+    .sheet-sub{font-size:.76rem;color:var(--txt3);margin:3px 0 6px;}
+    .field{margin:17px 0;}
+    .flabel{display:flex;justify-content:space-between;font-size:.86rem;font-weight:600;margin-bottom:10px;}
+    .flabel b{color:#C9B8FF;}
+    .slider{width:100%;-webkit-appearance:none;appearance:none;height:8px;border-radius:5px;background:linear-gradient(90deg,#4C6BFF,#8B5CF6,#C24BE8);outline:none;}
+    .slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #8B5CF6;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.45);}
+    .slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #8B5CF6;cursor:pointer;}
+    .ticks{display:flex;justify-content:space-between;font-size:.68rem;color:var(--txt3);margin-top:6px;}
+    .fgroup{font-size:.8rem;font-weight:700;margin:4px 0 10px;}
+    .fgroup.take{color:var(--warm);}
+    .fgroup.give{color:var(--green);}
+    .fchips{display:flex;flex-wrap:wrap;gap:7px;}
+    .fchip{border:1px solid var(--line);background:var(--card2);color:var(--txt2);border-radius:999px;padding:6px 12px;font-size:.78rem;font-weight:600;cursor:pointer;}
+    .fchk:checked + .fchip{background:var(--grad);color:#fff;border-color:transparent;}
+    .fchip.on{background:var(--grad);color:#fff;border-color:transparent;}
+    .fchip.addf{border-style:dashed;color:var(--txt3);background:transparent;font-family:inherit;}
+    .newf{border:1px solid var(--violet);background:var(--card2);color:var(--txt);border-radius:999px;padding:6px 12px;font-size:.78rem;font-family:inherit;outline:none;width:132px;}
+    .newf::placeholder{color:var(--txt3);}
+    .fchip.custom{display:inline-flex;align-items:center;gap:7px;}
+    .fchip.custom .ctext{cursor:pointer;}
+    .fchip.custom .cdel{font-size:.68rem;opacity:.7;cursor:pointer;}
+    .fchip.custom .cdel:hover{opacity:1;}
+    .note{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px;color:var(--txt);font-family:inherit;font-size:.88rem;margin-top:6px;}
+    .note::placeholder{color:var(--txt3);}
+    .note:focus{outline:2px solid var(--violet);}
+    .savebtn{display:block;width:100%;margin-top:20px;padding:13px;border-radius:14px;border:0;background:var(--grad);color:#fff;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 12px 26px -10px rgba(139,92,246,.7);text-align:center;}
+    .seg2{display:flex;background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px;margin-top:6px;}
+    .seg2 label{flex:1;text-align:center;font-size:.78rem;font-weight:600;color:var(--txt2);padding:8px 4px;border-radius:8px;cursor:pointer;}
+    #ht-bin:checked ~ .seg2 [for="ht-bin"],#ht-quant:checked ~ .seg2 [for="ht-quant"],
+    #hf-daily:checked ~ .seg2 [for="hf-daily"],#hf-days:checked ~ .seg2 [for="hf-days"],#hf-times:checked ~ .seg2 [for="hf-times"]{background:var(--grad);color:#fff;}
+    .iconpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .ico-opt{width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:var(--card2);display:grid;place-items:center;font-size:1.15rem;cursor:pointer;}
+    .iconpick input:checked + .ico-opt{border-color:var(--violet);box-shadow:0 0 0 2px rgba(139,92,246,.4);background:rgba(139,92,246,.15);}
+    .quantf,.daysf,.timesf{display:none;margin-top:9px;}
+    #ht-quant:checked ~ .quantf{display:block;}
+    #hf-days:checked ~ .daysf{display:block;}
+    #hf-times:checked ~ .timesf{display:block;}
+    .qrow{display:flex;gap:8px;}
+    .mini{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;color:var(--txt);font-family:inherit;font-size:.85rem;outline:none;}
+    .mini:focus{outline:2px solid var(--violet);}
+    .qrow .mini.num{width:84px;}
+    .qrow .mini.unit{flex:1;min-width:0;}
+    label.habit{cursor:pointer;}
+    .habit .chev{color:var(--txt3);font-size:1.25rem;flex:none;line-height:1;}
+    .edit-actions{display:flex;gap:9px;margin-top:22px;}
+    .btn-arch,.btn-del{flex:1;text-align:center;padding:11px;border-radius:12px;font-family:inherit;font-size:.83rem;font-weight:600;cursor:pointer;border:1px solid var(--line);}
+    .btn-arch{background:var(--card2);color:var(--txt2);}
+    .btn-del{background:transparent;color:var(--warm);border-color:rgba(255,122,138,.35);}
+    .del-confirm{display:none;margin-top:12px;background:rgba(255,122,138,.1);border:1px solid rgba(255,122,138,.3);border-radius:14px;padding:14px;}
+    #delconfirm:checked ~ .del-confirm{display:block;}
+    .del-confirm p{margin:0 0 12px;font-size:.83rem;line-height:1.45;color:var(--txt);}
+    .dc-row{display:flex;gap:9px;}
+    .dc-row label{flex:1;text-align:center;padding:10px;border-radius:11px;font-family:inherit;font-size:.83rem;font-weight:700;cursor:pointer;}
+    .dc-cancel{background:var(--card2);color:var(--txt2);border:1px solid var(--line);}
+    .dc-yes{background:linear-gradient(90deg,#FF7A8A,#E8635C);color:#fff;}
+    svg{display:block;}
+  </style>
+</head>
+<body>
+<div class="screen">
+  <input class="ctl" type="radio" name="scr" id="r-today" checked>
+  <input class="ctl" type="radio" name="scr" id="r-habits">
+  <input class="ctl" type="radio" name="scr" id="r-state">
+  <input class="ctl" type="radio" name="scr" id="r-wheel">
+  <input class="ctl" type="radio" name="scr" id="r-motiv">
+
+  <div class="content">
+
+    <!-- ===== СЕГОДНЯ ===== -->
+    <section id="s-today" class="view">
+      <div class="phead">
+        <div class="greet"><span class="hi">Доброе утро,</span> <b>Татьяна</b> 🌿</div>
+        <span class="icobtn" style="margin-left:auto" aria-label="Уведомления"><span class="badge"></span>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7.5a4.5 4.5 0 0 1 9 0c0 4 1.5 5 1.5 5H3s1.5-1 1.5-5Z"/><path d="M7.5 15a1.6 1.6 0 0 0 3 0"/></svg>
+        </span>
+      </div>
+      <div class="hero">
+        <div class="htop"><span class="label">✨ Мотивация дня</span>
+          <span class="roundbtn" id="reroll" role="button" tabindex="0" aria-label="Другая аффирмация">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 7a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5V6h-3.5"/></svg>
+          </span>
+        </div>
+        <p class="q" id="affirm">Ты не обязана быть идеальной. Достаточно быть настоящей.</p>
+        <div class="hbot"><span class="pill">♥ Сохранить</span><label class="pill" for="r-motiv">Открыть ленту →</label></div>
+      </div>
+      <div class="card" id="today-habits">
+        <div class="chead"><b>Привычки сегодня</b></div>
+        <input class="ctl" type="checkbox" id="showall">
+        <div class="habitlist">
+          <div class="habit"><span class="ico">🌅</span><span class="txt"><b>Утренняя практика</b><small><span class="streak">🔥12</span> дней подряд</small></span><input class="ctl chk" type="checkbox" id="c-t1" checked><label class="check" for="c-t1" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">🧘</span><span class="txt"><b>Медитация</b><small><span class="streak">🔥5</span> дней подряд</small></span><input class="ctl chk" type="checkbox" id="c-t2" checked><label class="check" for="c-t2" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">💊</span><span class="txt"><b>Витамины</b><small>каждое утро</small></span><input class="ctl chk" type="checkbox" id="c-t6" checked><label class="check" for="c-t6" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">✨</span><span class="txt"><b>Что-то новое</b><small>ещё не отмечено</small></span><input class="ctl chk" type="checkbox" id="c-t3"><label class="check" for="c-t3" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">💧</span><span class="txt"><b>Вода 8 стаканов</b><small>3 из 8</small></span><input class="ctl chk" type="checkbox" id="c-t7"><label class="check" for="c-t7" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">🚶</span><span class="txt"><b>Прогулка</b><small><span class="streak">🔥3</span> дня подряд</small></span><input class="ctl chk" type="checkbox" id="c-t4"><label class="check" for="c-t4" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">📖</span><span class="txt"><b>Чтение 30 мин</b><small>вечером</small></span><input class="ctl chk" type="checkbox" id="c-t8"><label class="check" for="c-t8" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">🤸</span><span class="txt"><b>Растяжка</b><small>ежедневно</small></span><input class="ctl chk" type="checkbox" id="c-t9"><label class="check" for="c-t9" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">📓</span><span class="txt"><b>Дневник</b><small>перед сном</small></span><input class="ctl chk" type="checkbox" id="c-t10"><label class="check" for="c-t10" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">🚫</span><span class="txt"><b>Без сахара</b><small><span class="streak">🔥7</span> дней</small></span><input class="ctl chk" type="checkbox" id="c-t11" checked><label class="check" for="c-t11" aria-label="Отметить"></label></div>
+          <div class="habit"><span class="ico">🏋️</span><span class="txt"><b>Спорт</b><small>2 из 3 на неделе</small></span><input class="ctl chk" type="checkbox" id="c-t5"><label class="check" for="c-t5" aria-label="Отметить"></label></div>
+        </div>
+        <label class="showall-btn" for="showall"></label>
+      </div>
+      <div class="card">
+        <div class="chead"><b>Энергия</b><label class="all" for="sheet" style="cursor:pointer">＋ отметить заряд</label></div>
+        <div class="energy">
+          <div class="gauge">
+            <svg width="92" height="92" viewBox="0 0 96 96">
+              <defs><linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4C6BFF"/><stop offset=".5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#C24BE8"/></linearGradient></defs>
+              <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
+              <circle cx="48" cy="48" r="40" fill="none" stroke="url(#ring)" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="50.3" transform="rotate(-90 48 48)"/>
+            </svg>
+            <div class="cx"><b>8<i>/10</i></b><small>Утро</small></div>
+          </div>
+          <div class="elegend">
+            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--blue)"></span><span class="n">Заряд утром</span><span class="v">8/10</span></label>
+            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--txt3)"></span><span class="n">Заряд вечером</span><span class="v muted">ждёт</span></label>
+            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--green)"></span><span class="n">Сон</span><span class="v">8/10</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ПРИВЫЧКИ ===== -->
+    <section id="s-habits" class="view">
+      <div class="phead"><h2>Привычки</h2></div>
+      <div class="stats3">
+        <div class="st"><b><span class="g">2/5</span></b><small>сегодня</small></div>
+        <div class="st"><b>🔥12</b><small>лучший стрик</small></div>
+        <div class="st"><b>78%</b><small>за неделю</small></div>
+      </div>
+      <div class="card">
+        <div class="chead"><b>Активность</b><label class="heatsel" for="heatmenu"><span id="heatlabel">🧘 Медитация</span> <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4 5 6.5 7.5 4"/></svg></label></div>
+        <input class="ctl" type="checkbox" id="heatmenu">
+        <div class="hmenu">
+          <label class="hmi" for="heatmenu" data-seed="0" data-name="🧘 Медитация">🧘 Медитация</label>
+          <label class="hmi" for="heatmenu" data-seed="1" data-name="🌅 Утренняя практика">🌅 Утренняя практика</label>
+          <label class="hmi" for="heatmenu" data-seed="2" data-name="🏋️ Спорт">🏋️ Спорт</label>
+          <label class="hmi" for="heatmenu" data-seed="3" data-name="🚶 Прогулка">🚶 Прогулка</label>
+          <label class="hmi" for="heatmenu" data-seed="4" data-name="💧 Вода 8 стаканов">💧 Вода 8 стаканов</label>
+          <label class="hmi" for="heatmenu" data-seed="5" data-name="✨ Что-то новое">✨ Что-то новое</label>
+        </div>
+        <div class="heat" id="heat"><span class="h3"></span><span class="h4"></span><span class="h2"></span><span class="h3"></span><span class="h4"></span><span class="h1"></span><span></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h2"></span><span class="h3"></span><span></span><span class="h1"></span><span class="h2"></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span class="h4"></span><span class="h1"></span><span class="h1"></span><span class="h3"></span><span class="h2"></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h2"></span><span></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span class="h4"></span><span class="h3"></span><span></span><span class="h2"></span><span class="h2"></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span class="h3"></span><span class="h1"></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span class="h1"></span><span></span><span class="h3"></span><span class="h4"></span><span class="h2"></span><span class="h3"></span><span class="h4"></span><span class="h2"></span><span class="h1"></span><span class="h4"></span><span class="h2"></span><span class="h3"></span><span class="h4"></span><span class="h3"></span><span></span><span class="h2"></span><span class="h2"></span><span class="h3"></span><span class="h4"></span><span class="h3"></span><span class="h4"></span><span class="h1"></span><span></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span class="h2"></span><span class="h3"></span><span class="h2"></span><span class="h1"></span><span class="h3"></span><span class="h2"></span><span class="h4"></span><span class="h4"></span><span class="h3"></span><span></span><span class="h1"></span><input class="ctl hc" type="checkbox" id="d-1" checked><label class="cell" for="d-1" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-2" checked><label class="cell" for="d-2" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-3"><label class="cell" for="d-3" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-4" checked><label class="cell" for="d-4" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-5"><label class="cell" for="d-5" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-6"><label class="cell" for="d-6" aria-label="Отметить день"></label><input class="ctl hc" type="checkbox" id="d-7" checked><label class="cell" for="d-7" aria-label="Отметить день"></label></div>
+        <div class="hlegend">меньше <i style="background:rgba(139,92,246,.12)"></i><i style="background:rgba(139,92,246,.4)"></i><i style="background:rgba(139,92,246,.7)"></i><i style="background:rgba(139,92,246,1)"></i> больше</div>
+        <div class="bfhint"><b>Забыла отметить?</b> Правый столбец — последние 7 дней. Тапни клетку, чтобы отметить задним числом.</div>
+      </div>
+      <div class="card">
+        <div class="chead"><b>Все привычки</b><span class="sub">тапни — изменить</span></div>
+        <label class="habit" for="esheet"><span class="ico">🌅</span><span class="txt"><b>Утренняя практика</b><small><span class="streak">🔥12</span> · ежедневно</small></span><span class="chev">›</span></label>
+        <label class="habit" for="esheet"><span class="ico">✨</span><span class="txt"><b>Что-то новое</b><small><span class="streak">🔥4</span> · ежедневно</small></span><span class="chev">›</span></label>
+        <label class="habit" for="esheet"><span class="ico">🧘</span><span class="txt"><b>Медитация</b><small><span class="streak">🔥5</span> · ежедневно</small></span><span class="chev">›</span></label>
+        <label class="habit" for="esheet"><span class="ico">🚶</span><span class="txt"><b>Прогулка</b><small><span class="streak">🔥3</span> · ежедневно</small></span><span class="chev">›</span></label>
+        <label class="habit" for="esheet"><span class="ico">🏋️</span><span class="txt"><b>Спорт</b><small>2 из 3 · по неделям</small></span><span class="chev">›</span></label>
+      </div>
+      <label class="addhabit" for="hsheet"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg> Добавить привычку</label>
+    </section>
+
+    <!-- ===== СОСТОЯНИЕ ===== -->
+    <section id="s-state" class="view">
+      <div class="phead"><h2>Состояние</h2></div>
+      <div class="card insights">
+        <div class="chead"><b>💡 Мы заметили</b><span class="sub">за 4 недели</span></div>
+        <div class="ins"><span class="ins-ic">🏋️</span><p>В дни <b>спорта</b> энергия заметно выше — <b>8.4</b> против <b>5.8</b> в остальные</p></div>
+        <div class="ins"><span class="ins-ic">🧘</span><p>После <b>медитации</b> сон крепче — <b>8.6</b> против <b>7.2</b></p></div>
+        <div class="ins"><span class="ins-ic">🌙</span><p>Сильнее всего роняет настроение <b>недосып</b></p></div>
+      </div>
+      <div class="card">
+        <div class="chead"><b>Заряд энергии</b><span class="sub">14 дней</span></div>
+        <svg viewBox="0 0 290 96" width="100%" height="96">
+          <defs>
+            <linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8B5CF6" stop-opacity=".45"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></linearGradient>
+            <linearGradient id="ln" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4C6BFF"/><stop offset="1" stop-color="#C24BE8"/></linearGradient>
+          </defs>
+          <path d="M8,48 38.4,29 68.9,48 99.3,10 129.8,29 160.2,67 190.6,29 221.1,10 251.5,48 281.9,29 L281.9,90 L8,90 Z" fill="url(#area)"/>
+          <polyline points="8,48 38.4,29 68.9,48 99.3,10 129.8,29 160.2,67 190.6,29 221.1,10 251.5,48 281.9,29" fill="none" stroke="url(#ln)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="8,29 38.4,29 68.9,10 99.3,29 129.8,10 160.2,48 190.6,29 221.1,10 251.5,29 281.9,10" fill="none" stroke="rgba(76,107,255,.55)" stroke-width="1.6" stroke-dasharray="3 3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="clegend"><span><i style="background:var(--violet)"></i>Вечер</span><span><i style="background:rgba(76,107,255,.7)"></i>Утро</span><span style="margin-left:auto;color:var(--txt3)">Ø 7.6 · ↑ бодрее</span></div>
+      </div>
+      <div class="card">
+        <div class="chead"><b>Что влияет на энергию</b></div>
+        <div class="glabel give">↑ Даёт</div>
+        <div class="bar"><span class="bn">Спорт</span><span class="track"><span class="fill give" style="width:67%"></span></span><span class="bv give">+2.1</span></div>
+        <div class="bar"><span class="bn">Прогулка</span><span class="track"><span class="fill give" style="width:45%"></span></span><span class="bv give">+1.4</span></div>
+        <div class="bar"><span class="bn">Природа</span><span class="track"><span class="fill give" style="width:29%"></span></span><span class="bv give">+0.9</span></div>
+        <div class="divider"></div>
+        <div class="glabel take">↓ Забирает</div>
+        <div class="bar"><span class="bn">Недосып</span><span class="track"><span class="fill take" style="width:90%"></span></span><span class="bv take">−2.8</span></div>
+        <div class="bar"><span class="bn">Соцсети</span><span class="track"><span class="fill take" style="width:45%"></span></span><span class="bv take">−1.4</span></div>
+        <div class="bar"><span class="bn">Работа</span><span class="track"><span class="fill take" style="width:22%"></span></span><span class="bv take">−0.7</span></div>
+      </div>
+    </section>
+
+    <!-- ===== КОЛЕСО ===== -->
+    <section id="s-wheel" class="view">
+      <div class="phead"><h2>Колесо</h2>
+        <div class="monthsel"><button class="mnav" data-d="-1" aria-label="Раньше">‹</button><span id="wmonth">Июль 2026</span><button class="mnav" data-d="1" aria-label="Позже">›</button></div>
+      </div>
+      <div class="card">
+        <div class="chead"><b>Баланс сфер</b><label class="all" for="wsheet" style="cursor:pointer">✎ Заполнить</label></div>
+        <svg class="radar" viewBox="-48 -14 316 244">
+          <defs><linearGradient id="rad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4C6BFF"/><stop offset="1" stop-color="#C24BE8"/></linearGradient></defs>
+          <polygon points="110,26 159.4,42 189.9,84 189.9,136 159.4,178 110,194 60.6,178 30.1,136 30.1,84 60.6,42" fill="none" stroke="rgba(255,255,255,.08)"/>
+          <polygon points="110,54 142.9,64.7 163.3,92.7 163.3,127.3 142.9,155.3 110,166 77.1,155.3 56.7,127.3 56.7,92.7 77.1,64.7" fill="none" stroke="rgba(255,255,255,.06)"/>
+          <polygon points="110,82 126.5,87.3 136.6,101.3 136.6,118.7 126.5,132.7 110,138 93.5,132.7 83.4,118.7 83.4,101.3 93.5,87.3" fill="none" stroke="rgba(255,255,255,.05)"/>
+          <g stroke="rgba(255,255,255,.06)"><line x1="110" y1="110" x2="110" y2="26"/><line x1="110" y1="110" x2="159.4" y2="42"/><line x1="110" y1="110" x2="189.9" y2="84"/><line x1="110" y1="110" x2="189.9" y2="136"/><line x1="110" y1="110" x2="159.4" y2="178"/><line x1="110" y1="110" x2="110" y2="194"/><line x1="110" y1="110" x2="60.6" y2="178"/><line x1="110" y1="110" x2="30.1" y2="136"/><line x1="110" y1="110" x2="30.1" y2="84"/><line x1="110" y1="110" x2="60.6" y2="42"/></g>
+          <polygon points="110,59.6 144.6,62.4 173.9,89.2 157.9,125.6 134.7,144 110,160.4 75.4,157.6 94,115.2 62.1,94.4 90.25,82.8" fill="none" stroke="rgba(167,162,188,.55)" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <polygon points="110,51.2 149.5,55.6 181.9,86.6 149.9,123 139.6,150.8 110,168.8 80.4,150.8 86,117.8 70.1,97 90.25,82.8" fill="url(#rad)" fill-opacity=".4" stroke="url(#rad)" stroke-width="2.2"/>
+          <g fill="#B7B2CC" font-size="9" font-weight="600" font-family="'Segoe UI',sans-serif">
+            <text x="110" y="7" text-anchor="middle">Здоровье <tspan fill="#fff" font-weight="800">(7)</tspan></text>
+            <text x="171" y="28" text-anchor="start" dominant-baseline="middle">Отношения <tspan fill="#fff" font-weight="800">(8)</tspan></text>
+            <text x="208" y="79" text-anchor="start" dominant-baseline="middle">Семья <tspan fill="#fff" font-weight="800">(9)</tspan></text>
+            <text x="208" y="141" text-anchor="start" dominant-baseline="middle">Друзья <tspan fill="#fff" font-weight="800">(5)</tspan></text>
+            <text x="171" y="192" text-anchor="start" dominant-baseline="middle">Рост <tspan fill="#fff" font-weight="800">(6)</tspan></text>
+            <text x="110" y="214" text-anchor="middle">Духовность <tspan fill="#fff" font-weight="800">(7)</tspan></text>
+            <text x="49" y="192" text-anchor="end" dominant-baseline="middle">Работа <tspan fill="#fff" font-weight="800">(6)</tspan></text>
+            <text x="12" y="141" text-anchor="end" dominant-baseline="middle">Доход <tspan fill="#fff" font-weight="800">(3)</tspan></text>
+            <text x="12" y="79" text-anchor="end" dominant-baseline="middle">Отдых <tspan fill="#fff" font-weight="800">(5)</tspan></text>
+            <text x="49" y="28" text-anchor="end" dominant-baseline="middle">Хобби <tspan fill="#fff" font-weight="800">(4)</tspan></text>
+          </g>
+        </svg>
+        <div class="rlegend"><span><i style="background:var(--violet)"></i>Этот месяц</span><span><i class="dash"></i>Прошлый</span></div>
+      </div>
+      <div class="card">
+        <div class="chead"><b>Цели месяца</b><span class="sub">тапни — выполнено</span></div>
+        <label class="goal"><input class="ctl gchk" type="checkbox"><span class="gcheck"></span><span class="gt"><b>Зал 3× в неделю</b><small>🫀 Здоровье</small></span></label>
+        <label class="goal"><input class="ctl gchk" type="checkbox"><span class="gcheck"></span><span class="gt"><b>Запустить лендинг</b><small>💰 Пассивный доход</small></span></label>
+        <label class="goal"><input class="ctl gchk" type="checkbox" checked><span class="gcheck"></span><span class="gt"><b>Выходные без телефона</b><small>👶 Семья/дети</small></span></label>
+        <label class="addhabit" for="gsheet"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg> Добавить цель</label>
+      </div>
+      <div class="card">
+        <div class="chead"><b>🎯 Что подтянуть</b><span class="sub">просевшие сферы</span></div>
+        <div class="rec">
+          <div class="rec-h"><span class="rec-ic">💰</span><b>Пассивный доход</b><span class="rec-score">3/10</span></div>
+          <p>Самая просевшая. Начни с малого — <b>2 часа в неделю</b> на один источник: упакуй в услугу то, что уже умеешь.</p>
+        </div>
+        <div class="rec">
+          <div class="rec-h"><span class="rec-ic">🎨</span><b>Хобби</b><span class="rec-score">4/10</span></div>
+          <p>Верни одно хобби в расписание — <b>1 вечер в неделю</b> без чувства вины.</p>
+        </div>
+        <div class="rec">
+          <div class="rec-h"><span class="rec-ic">👯</span><b>Друзья</b><span class="rec-score">5/10</span></div>
+          <p>Напиши тому, с кем давно не виделась. Одна живая встреча <b>раз в 2 недели</b> заметно двигает сферу.</p>
+        </div>
+        <div class="rec">
+          <div class="rec-h"><span class="rec-ic">🌴</span><b>Отдых</b><span class="rec-score">5/10</span></div>
+          <p>Планируй отдых как встречу в календаре — хотя бы <b>полдня выходного</b> без задач и телефона.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== МОТИВАЦИЯ ===== -->
+    <section id="s-motiv" class="view">
+      <label class="backrow" for="r-today"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3 5 8l5 5"/></svg> Назад</label>
+      <div class="phead"><h2>Мотивация</h2>
+        <span class="icobtn grad" aria-label="Добавить свою"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M9 3.5v11M3.5 9h11"/></svg></span>
+      </div>
+      <input class="ctl" type="radio" name="filt" id="filt-all" checked>
+      <input class="ctl" type="radio" name="filt" id="filt-mine">
+      <input class="ctl" type="radio" name="filt" id="filt-fav">
+      <div class="mfilter"><label for="filt-all">Все</label><label for="filt-mine">Мои</label><label for="filt-fav">♥ Избранное</label></div>
+      <div id="feed">
+        <div class="fcard g1" data-mine="0" data-fav="1"><p>Ты не обязана быть идеальной. Достаточно быть настоящей.</p><div class="fbot"><small>аффирмация дня</small><input class="ctl hchk" type="checkbox" id="hf1" checked><label class="heartbtn" for="hf1" aria-label="В избранное"></label></div></div>
+        <div class="fcard dark" data-mine="1" data-fav="0"><p>Я справляюсь. Шаг за шагом, в своём темпе.</p><div class="fbot"><small><span class="mine">моя</span></small><input class="ctl hchk" type="checkbox" id="hf2"><label class="heartbtn" for="hf2" aria-label="В избранное"></label></div></div>
+        <div class="fcard g2" data-mine="0" data-fav="1"><p>Отдых — это не награда за усталость, а часть работы.</p><div class="fbot"><small>забота о себе</small><input class="ctl hchk" type="checkbox" id="hf3" checked><label class="heartbtn" for="hf3" aria-label="В избранное"></label></div></div>
+        <div class="fcard dark" data-mine="0" data-fav="0"><p>Маленький шаг сегодня — это всё равно движение вперёд.</p><div class="fbot"><small style="color:var(--txt3)">мотивация</small><input class="ctl hchk" type="checkbox" id="hf4"><label class="heartbtn" for="hf4" aria-label="В избранное"></label></div></div>
+      </div>
+    </section>
+
+  </div>
+
+  <nav class="nav">
+    <label for="r-today"><span class="ni"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 8.5 10 3l7 5.5V16a1 1 0 0 1-1 1h-3v-5H7v5H4a1 1 0 0 1-1-1V8.5Z"/></svg></span>Сегодня</label>
+    <label for="r-habits"><span class="ni"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.2"/><path d="M6.7 10.2 9 12.5l4.3-5"/></svg></span>Привычки</label>
+    <label for="r-state"><span class="ni"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12.5 7 8l3 3 4-6 3 4.5"/></svg></span>Состояние</label>
+    <label for="r-wheel"><span class="ni"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="3"/></svg></span>Колесо</label>
+  </nav>
+
+  <input class="ctl" type="checkbox" id="sheet">
+  <div class="sheet-wrap" id="w-pm">
+    <label class="sheet-back" for="sheet" aria-label="Закрыть"></label>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="sheet-h"><b>Замер дня</b><label class="sheet-x" for="sheet">✕</label></div>
+      <div class="sheet-sub">Суббота, 5 июля</div>
+      <div class="ssec">🌅 Утро</div>
+      <div class="field">
+        <div class="flabel"><span>Заряд с утра</span><b>8/10</b></div>
+        <input class="slider" type="range" min="1" max="10" value="8">
+        <div class="ticks"><span>разбита</span><span>бодра</span></div>
+      </div>
+      <div class="field">
+        <div class="flabel"><span>Как спалось</span><b>8/10</b></div>
+        <input class="slider" type="range" min="1" max="10" value="8">
+        <div class="ticks"><span>не выспалась</span><span>отлично</span></div>
+      </div>
+      <div class="ssec pm">🌙 Вечер</div>
+      <div class="field">
+        <div class="flabel"><span>Заряд вечером</span><b>6/10</b></div>
+        <input class="slider" type="range" min="1" max="10" value="6">
+        <div class="ticks"><span>вымотана</span><span>полна сил</span></div>
+      </div>
+      <div class="field">
+        <div class="flabel"><span>Настроение</span><b>7/10</b></div>
+        <input class="slider" type="range" min="1" max="10" value="7">
+        <div class="ticks"><span>плохо</span><span>отлично</span></div>
+      </div>
+      <div class="field">
+        <div class="fgroup give">↑ Что прибавило энергию</div>
+        <div class="fchips">
+          <input class="ctl fchk" type="checkbox" id="fg1"><label class="fchip" for="fg1">Спорт</label>
+          <input class="ctl fchk" type="checkbox" id="fg2"><label class="fchip" for="fg2">Прогулка</label>
+          <input class="ctl fchk" type="checkbox" id="fg3"><label class="fchip" for="fg3">Общение</label>
+          <input class="ctl fchk" type="checkbox" id="fg4"><label class="fchip" for="fg4">Природа</label>
+          <input class="ctl fchk" type="checkbox" id="fg5"><label class="fchip" for="fg5">Тишина</label>
+          <button class="fchip addf">＋ Добавить</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="fgroup take">↓ Что забрало энергию</div>
+        <div class="fchips">
+          <input class="ctl fchk" type="checkbox" id="ft1"><label class="fchip" for="ft1">Недосып</label>
+          <input class="ctl fchk" type="checkbox" id="ft2"><label class="fchip" for="ft2">Соцсети</label>
+          <input class="ctl fchk" type="checkbox" id="ft3"><label class="fchip" for="ft3">Работа</label>
+          <input class="ctl fchk" type="checkbox" id="ft4"><label class="fchip" for="ft4">Быт</label>
+          <input class="ctl fchk" type="checkbox" id="ft5"><label class="fchip" for="ft5">Тревога</label>
+          <button class="fchip addf">＋ Добавить</button>
+        </div>
+      </div>
+      <input class="note" type="text" placeholder="Заметка: что повлияло на день?">
+      <label class="savebtn" for="sheet">Сохранить</label>
+    </div>
+  </div>
+
+  <input class="ctl" type="checkbox" id="hsheet">
+  <div class="sheet-wrap" id="w-habit">
+    <label class="sheet-back" for="hsheet" aria-label="Закрыть"></label>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="sheet-h"><b>Новая привычка</b><label class="sheet-x" for="hsheet">✕</label></div>
+      <div class="field">
+        <div class="flabel"><span>Название</span></div>
+        <input class="note" type="text" placeholder="Например, Пить воду" style="margin-top:0">
+      </div>
+      <div class="field">
+        <div class="flabel"><span>Иконка</span></div>
+        <div class="iconpick">
+          <input class="ctl" type="radio" name="hicon" id="ic1" checked><label class="ico-opt" for="ic1">💧</label>
+          <input class="ctl" type="radio" name="hicon" id="ic2"><label class="ico-opt" for="ic2">🧘</label>
+          <input class="ctl" type="radio" name="hicon" id="ic3"><label class="ico-opt" for="ic3">🏋️</label>
+          <input class="ctl" type="radio" name="hicon" id="ic4"><label class="ico-opt" for="ic4">📖</label>
+          <input class="ctl" type="radio" name="hicon" id="ic5"><label class="ico-opt" for="ic5">🚶</label>
+          <input class="ctl" type="radio" name="hicon" id="ic6"><label class="ico-opt" for="ic6">🌅</label>
+          <input class="ctl" type="radio" name="hicon" id="ic7"><label class="ico-opt" for="ic7">💊</label>
+          <input class="ctl" type="radio" name="hicon" id="ic8"><label class="ico-opt" for="ic8">🤸</label>
+          <input class="ctl" type="radio" name="hicon" id="ic9"><label class="ico-opt" for="ic9">✨</label>
+        </div>
+      </div>
+      <div class="field">
+        <div class="flabel"><span>Тип</span></div>
+        <input class="ctl" type="radio" name="htype" id="ht-bin" checked>
+        <input class="ctl" type="radio" name="htype" id="ht-quant">
+        <div class="seg2"><label for="ht-bin">Сделала / нет</label><label for="ht-quant">С целью</label></div>
+        <div class="quantf">
+          <div class="qrow"><input class="mini num" type="number" value="8"><input class="mini unit" type="text" placeholder="единица: стаканов, минут…"></div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="flabel"><span>Как часто</span></div>
+        <input class="ctl" type="radio" name="hfreq" id="hf-daily" checked>
+        <input class="ctl" type="radio" name="hfreq" id="hf-days">
+        <input class="ctl" type="radio" name="hfreq" id="hf-times">
+        <div class="seg2"><label for="hf-daily">Каждый день</label><label for="hf-days">Дни недели</label><label for="hf-times">N в неделю</label></div>
+        <div class="daysf">
+          <div class="fchips">
+            <input class="ctl fchk" type="checkbox" id="wd1" checked><label class="fchip" for="wd1">Пн</label>
+            <input class="ctl fchk" type="checkbox" id="wd2"><label class="fchip" for="wd2">Вт</label>
+            <input class="ctl fchk" type="checkbox" id="wd3" checked><label class="fchip" for="wd3">Ср</label>
+            <input class="ctl fchk" type="checkbox" id="wd4"><label class="fchip" for="wd4">Чт</label>
+            <input class="ctl fchk" type="checkbox" id="wd5" checked><label class="fchip" for="wd5">Пт</label>
+            <input class="ctl fchk" type="checkbox" id="wd6"><label class="fchip" for="wd6">Сб</label>
+            <input class="ctl fchk" type="checkbox" id="wd7"><label class="fchip" for="wd7">Вс</label>
+          </div>
+        </div>
+        <div class="timesf">
+          <div class="fchips">
+            <input class="ctl fchk" type="radio" name="ntimes" id="nt1"><label class="fchip" for="nt1">1×</label>
+            <input class="ctl fchk" type="radio" name="ntimes" id="nt2"><label class="fchip" for="nt2">2×</label>
+            <input class="ctl fchk" type="radio" name="ntimes" id="nt3" checked><label class="fchip" for="nt3">3×</label>
+            <input class="ctl fchk" type="radio" name="ntimes" id="nt4"><label class="fchip" for="nt4">4×</label>
+            <input class="ctl fchk" type="radio" name="ntimes" id="nt5"><label class="fchip" for="nt5">5×</label>
+          </div>
+        </div>
+      </div>
+      <label class="savebtn" for="hsheet">Создать привычку</label>
+    </div>
+  </div>
+
+  <input class="ctl" type="checkbox" id="wsheet">
+  <div class="sheet-wrap" id="w-wheel">
+    <label class="sheet-back" for="wsheet" aria-label="Закрыть"></label>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="sheet-h"><b>Колесо · Июль</b><label class="sheet-x" for="wsheet">✕</label></div>
+      <div class="sheet-sub">Оцени каждую сферу от 1 до 10 · раз в месяц</div>
+      <div class="field"><div class="flabel"><span>🫀 Здоровье</span><b>7/10</b></div><input class="slider" type="range" min="1" max="10" value="7"></div>
+      <div class="field"><div class="flabel"><span>❤️ Отношения</span><b>8/10</b></div><input class="slider" type="range" min="1" max="10" value="8"></div>
+      <div class="field"><div class="flabel"><span>👨‍👩‍👧 Семья/дети</span><b>9/10</b></div><input class="slider" type="range" min="1" max="10" value="9"></div>
+      <div class="field"><div class="flabel"><span>👯 Друзья</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
+      <div class="field"><div class="flabel"><span>🌱 Личностный рост</span><b>6/10</b></div><input class="slider" type="range" min="1" max="10" value="6"></div>
+      <div class="field"><div class="flabel"><span>🧘 Духовность</span><b>7/10</b></div><input class="slider" type="range" min="1" max="10" value="7"></div>
+      <div class="field"><div class="flabel"><span>💼 Работа</span><b>6/10</b></div><input class="slider" type="range" min="1" max="10" value="6"></div>
+      <div class="field"><div class="flabel"><span>💰 Пассивный доход</span><b>3/10</b></div><input class="slider" type="range" min="1" max="10" value="3"></div>
+      <div class="field"><div class="flabel"><span>🌴 Отдых</span><b>5/10</b></div><input class="slider" type="range" min="1" max="10" value="5"></div>
+      <div class="field"><div class="flabel"><span>🎨 Хобби</span><b>4/10</b></div><input class="slider" type="range" min="1" max="10" value="4"></div>
+      <label class="savebtn" for="wsheet">Сохранить колесо</label>
+    </div>
+  </div>
+
+  <input class="ctl" type="checkbox" id="gsheet">
+  <div class="sheet-wrap" id="w-goal">
+    <label class="sheet-back" for="gsheet" aria-label="Закрыть"></label>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="sheet-h"><b>Новая цель</b><label class="sheet-x" for="gsheet">✕</label></div>
+      <div class="field">
+        <div class="flabel"><span>Цель на месяц</span></div>
+        <input class="note" type="text" placeholder="Например, Читать 20 минут в день" style="margin-top:0">
+      </div>
+      <div class="field">
+        <div class="flabel"><span>Сфера (по желанию)</span></div>
+        <div class="fchips">
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs1" checked><label class="fchip" for="gs1">🫀 Здоровье</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs2"><label class="fchip" for="gs2">❤️ Отношения</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs3"><label class="fchip" for="gs3">👨‍👩‍👧 Семья/дети</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs4"><label class="fchip" for="gs4">👯 Друзья</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs5"><label class="fchip" for="gs5">🌱 Рост</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs6"><label class="fchip" for="gs6">🧘 Духовность</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs7"><label class="fchip" for="gs7">💼 Работа</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs8"><label class="fchip" for="gs8">💰 Доход</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs9"><label class="fchip" for="gs9">🌴 Отдых</label>
+          <input class="ctl fchk" type="radio" name="gsphere" id="gs10"><label class="fchip" for="gs10">🎨 Хобби</label>
+        </div>
+      </div>
+      <label class="savebtn" for="gsheet">Добавить цель</label>
+    </div>
+  </div>
+
+  <input class="ctl" type="checkbox" id="esheet">
+  <div class="sheet-wrap" id="w-edit">
+    <label class="sheet-back" for="esheet" aria-label="Закрыть"></label>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="sheet-h"><b>Изменить привычку</b><label class="sheet-x" for="esheet">✕</label></div>
+      <div class="field">
+        <div class="flabel"><span>Название</span></div>
+        <input class="note" type="text" value="Медитация" style="margin-top:0">
+      </div>
+      <div class="field">
+        <div class="flabel"><span>Иконка</span></div>
+        <div class="iconpick">
+          <input class="ctl" type="radio" name="eicon" id="eic1"><label class="ico-opt" for="eic1">🌅</label>
+          <input class="ctl" type="radio" name="eicon" id="eic2" checked><label class="ico-opt" for="eic2">🧘</label>
+          <input class="ctl" type="radio" name="eicon" id="eic3"><label class="ico-opt" for="eic3">🏋️</label>
+          <input class="ctl" type="radio" name="eicon" id="eic4"><label class="ico-opt" for="eic4">📖</label>
+          <input class="ctl" type="radio" name="eicon" id="eic5"><label class="ico-opt" for="eic5">🚶</label>
+          <input class="ctl" type="radio" name="eicon" id="eic6"><label class="ico-opt" for="eic6">💧</label>
+          <input class="ctl" type="radio" name="eicon" id="eic7"><label class="ico-opt" for="eic7">💊</label>
+        </div>
+      </div>
+      <div class="edit-actions">
+        <label class="btn-arch" for="esheet">📥 В архив</label>
+        <label class="btn-del" for="delconfirm">🗑 Удалить</label>
+      </div>
+      <input class="ctl" type="checkbox" id="delconfirm">
+      <div class="del-confirm">
+        <p>⚠️ Удалить «Медитация» навсегда? Пропадёт серия (🔥5 дней) и вся история. Это не отменить.</p>
+        <div class="dc-row"><label class="dc-cancel" for="delconfirm">Отмена</label><label class="dc-yes" for="esheet">Удалить</label></div>
+      </div>
+      <label class="savebtn" for="esheet">Сохранить</label>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // Telegram Mini App init
+  if(window.Telegram&&window.Telegram.WebApp){
+    var tg=window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor('#09080F');
+    tg.setBackgroundColor('#09080F');
+  }
+
+  try{
+    var affirm=document.getElementById('affirm');
+    var feed=document.getElementById('feed');
+    if(affirm&&feed){
+      var last=-1;
+      var pool=function(){return Array.prototype.map.call(feed.querySelectorAll('.fcard p'),function(p){return p.textContent.trim();});};
+      var roll=function(){var a=pool();if(!a.length)return;var n=last;if(a.length>1){while(n===last){n=Math.floor(Math.random()*a.length);}}else{n=0;}last=n;affirm.style.opacity=0;setTimeout(function(){affirm.textContent=a[n];affirm.style.opacity=1;},170);};
+      affirm.style.transition='opacity .18s ease';
+      var rr=document.getElementById('reroll');
+      if(rr)rr.addEventListener('click',roll);
+      var tl=document.querySelector('[for="r-today"]');
+      if(tl)tl.addEventListener('click',function(){setTimeout(roll,10);});
+      roll();
+    }
+    var items=document.querySelectorAll('.hmi');
+    var heat=document.getElementById('heat');
+    var hlabel=document.getElementById('heatlabel');
+    if(items.length&&heat){
+      var lvl=function(s,i){var x=Math.sin(s*99.7+i*12.9898)*43758.5453;x=x-Math.floor(x);if(x<0.14)return 0;if(x<0.36)return 1;if(x<0.62)return 2;if(x<0.85)return 3;return 4;};
+      var paint=function(s){var h='';for(var i=0;i<91;i++){var l=lvl(s,i);h+=(l===0)?'<span></span>':'<span class="h'+l+'"></span>';}for(var d=1;d<=7;d++){var on=(lvl(s,200+d)>1)?' checked':'';h+='<input class="ctl hc" type="checkbox" id="d-'+d+'"'+on+'><label class="cell" for="d-'+d+'"></label>';}heat.innerHTML=h;};
+      Array.prototype.forEach.call(items,function(c){c.addEventListener('click',function(){if(hlabel)hlabel.textContent=c.getAttribute('data-name');paint(parseInt(c.getAttribute('data-seed'),10));});});
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.slider'),function(sl){var b=sl.parentElement.querySelector('.flabel b');sl.addEventListener('input',function(){if(b)b.textContent=sl.value+'/10';});});
+    var months=['Апрель 2026','Май 2026','Июнь 2026','Июль 2026'];var mi=3;var wm=document.getElementById('wmonth');
+    Array.prototype.forEach.call(document.querySelectorAll('.mnav'),function(b){b.addEventListener('click',function(){mi=Math.max(0,Math.min(months.length-1,mi+parseInt(b.getAttribute('data-d'),10)));if(wm)wm.textContent=months[mi];});});
+    Array.prototype.forEach.call(document.querySelectorAll('.addf'),function(btn){btn.addEventListener('click',function(){var wrap=btn.parentElement;var inp=document.createElement('input');inp.className='newf';inp.placeholder='Свой фактор…';wrap.insertBefore(inp,btn);inp.focus();var done=false;var commit=function(){if(done)return;done=true;var v=inp.value.trim();if(v){var chip=document.createElement('span');chip.className='fchip on custom';var t=document.createElement('span');t.className='ctext';t.textContent=v;var x=document.createElement('span');x.className='cdel';x.textContent='✕';t.addEventListener('click',function(){chip.classList.toggle('on');});x.addEventListener('click',function(e){e.stopPropagation();chip.remove();});chip.appendChild(t);chip.appendChild(x);wrap.insertBefore(chip,btn);}inp.remove();};inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();commit();}});inp.addEventListener('blur',commit);});});
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
