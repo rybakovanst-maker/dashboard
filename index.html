@@ -783,7 +783,7 @@ function nyushaRenderHabits(){
           '<span class="txt"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>'+
           '<span style="color:var(--txt3);font-size:.8rem;flex:none;">изменить ›</span>';
         var handle=row.querySelector('.drag-handle');
-        handle.addEventListener('touchstart',function(e){_hDragStart(e,row,allCard);},{passive:false});
+        handle.addEventListener('touchstart',function(e){_hDragStart(e,row,allCard,'hi',_hLoad,_hSave,nyushaRenderHabits);},{passive:false});
         (function(i){row.addEventListener('click',function(e){if(!e.target.classList.contains('drag-handle'))nyushaOpenEdit(i);});})(idx);
         allCard.appendChild(row);
       })(k,habits[k]);
@@ -864,7 +864,7 @@ function nyushaCreateHabit(){
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.MainButton)Telegram.WebApp.MainButton.hide();}catch(e){}
 }
-function _hDragStart(e,row,container){
+function _hDragStart(e,row,container,attrKey,loadFn,saveFn,renderFn){
   e.preventDefault();
   var touch=e.touches[0];
   var rect=row.getBoundingClientRect();
@@ -877,10 +877,12 @@ function _hDragStart(e,row,container){
   placeholder.style.cssText='height:'+rect.height+'px;border-radius:10px;background:rgba(139,92,246,.15);border:1px dashed var(--violet);margin:2px 0;';
   row.parentNode.insertBefore(placeholder,row);
   row.style.display='none';
+  var rowClass=attrKey==='gi'?'goal-row':'habit-row';
   function onMove(ev){
+    ev.preventDefault();
     var t=ev.touches[0];
     clone.style.top=(t.clientY-offsetY)+'px';
-    var els=container.querySelectorAll('.habit-row:not([style*="display: none"]), .placeholder-drag');
+    var els=container.querySelectorAll('.'+rowClass+':not([style*="display: none"])');
     var insertBefore=null;
     for(var i=0;i<els.length;i++){
       var r2=els[i].getBoundingClientRect();
@@ -897,16 +899,15 @@ function _hDragStart(e,row,container){
     clone.remove();
     row.style.display='';
     row.style.opacity='';
-    // rebuild order from DOM
-    var newHabits=[];
-    var oldHabits=_hLoad();
-    var newRows=container.querySelectorAll('.habit-row');
+    var newItems=[];
+    var oldItems=loadFn();
+    var newRows=container.querySelectorAll('.'+rowClass);
     for(var i=0;i<newRows.length;i++){
-      var idx=parseInt(newRows[i].getAttribute('data-hi'),10);
-      if(oldHabits[idx])newHabits.push(oldHabits[idx]);
+      var idx=parseInt(newRows[i].getAttribute('data-'+attrKey),10);
+      if(oldItems[idx])newItems.push(oldItems[idx]);
     }
-    _hSave(newHabits);
-    nyushaRenderHabits();
+    saveFn(newItems);
+    renderFn();
   }
   document.addEventListener('touchmove',onMove,{passive:false});
   document.addEventListener('touchend',onEnd);
@@ -928,22 +929,36 @@ function nyushaRenderGoals(){
   for(var i=0;i<goals.length;i++){
     (function(idx,g){
       var div=document.createElement('div');
-      div.className='goal';
-      div.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line2);cursor:pointer;';
+      div.className='goal goal-row';
+      div.setAttribute('data-gi',idx);
+      div.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line2);';
       var done=g.done||false;
-      div.innerHTML='<span style="width:22px;height:22px;border-radius:50%;border:2px solid var(--violet);display:flex;align-items:center;justify-content:center;flex:none;font-size:.85rem;background:'+(done?'var(--violet)':'transparent')+';">'+(done?'✓':'')+'</span>'+
-        '<span style="flex:1;min-width:0;"><b style="display:block;font-size:.87rem;'+(done?'text-decoration:line-through;color:var(--txt3)':'')+'">'+g.name+'</b>'+(g.sphere?'<small style="color:var(--txt3);font-size:.72rem;">'+g.sphere+'</small>':'')+'</span>';
-      div.addEventListener('click',function(){
-        var gs=_gLoad();
-        if(gs[idx])gs[idx].done=!gs[idx].done;
-        _gSave(gs);
-        nyushaRenderGoals();
-        try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.impactOccurred('light');}catch(e){}
-      });
+      div.innerHTML='<span class="gdrag" style="font-size:1.2rem;color:var(--txt3);cursor:grab;touch-action:none;user-select:none;flex:none;padding-right:2px;">⠿</span>'+
+        '<span class="gcheck" style="width:22px;height:22px;border-radius:50%;border:2px solid var(--violet);display:flex;align-items:center;justify-content:center;flex:none;font-size:.85rem;cursor:pointer;background:'+(done?'var(--violet)':'transparent')+';">'+(done?'✓':'')+'</span>'+
+        '<span style="flex:1;min-width:0;cursor:pointer;"><b style="display:block;font-size:.87rem;'+(done?'text-decoration:line-through;color:var(--txt3)':'')+'">'+g.name+'</b>'+(g.sphere?'<small style="color:var(--txt3);font-size:.72rem;">'+g.sphere+'</small>':'')+'</span>';
+      var check=div.querySelector('.gcheck');
+      (function(i){check.addEventListener('click',function(e){e.stopPropagation();var gs=_gLoad();if(gs[i])gs[i].done=!gs[i].done;_gSave(gs);nyushaRenderGoals();try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.impactOccurred('light');}catch(e){}});})(idx);
+      var handle=div.querySelector('.gdrag');
+      (function(d){handle.addEventListener('touchstart',function(e){_hDragStart(e,d,list,'gi',_gLoad,_gSave,nyushaRenderGoals);},{passive:false});})(div);
+      // tap on text = edit; long press = delete
+      var txtSpan=div.querySelector('b');
       var pressTimer;
-      div.addEventListener('touchstart',function(){pressTimer=setTimeout(function(){if(confirm('Удалить цель «'+g.name+'»?')){var gs=_gLoad();gs.splice(idx,1);_gSave(gs);nyushaRenderGoals();}},600);});
-      div.addEventListener('touchend',function(){clearTimeout(pressTimer);});
-      div.addEventListener('touchmove',function(){clearTimeout(pressTimer);});
+      (function(i,gname){
+        div.addEventListener('touchstart',function(e){
+          if(e.target.classList.contains('gdrag')||e.target===check)return;
+          pressTimer=setTimeout(function(){
+            if(confirm('Удалить цель «'+gname+'»?')){var gs=_gLoad();gs.splice(i,1);_gSave(gs);nyushaRenderGoals();}
+          },600);
+        });
+        div.addEventListener('touchend',function(e){clearTimeout(pressTimer);});
+        div.addEventListener('touchmove',function(){clearTimeout(pressTimer);});
+        div.addEventListener('click',function(e){
+          if(e.target===check||e.target.classList.contains('gdrag'))return;
+          var gs=_gLoad();var gg=gs[i];if(!gg)return;
+          var newName=prompt('Редактировать цель:',gg.name);
+          if(newName&&newName.trim()){gs[i].name=newName.trim();_gSave(gs);nyushaRenderGoals();}
+        });
+      })(idx,g.name);
       list.appendChild(div);
     })(i,goals[i]);
   }
