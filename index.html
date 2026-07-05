@@ -787,7 +787,7 @@ function nyushaToggleDone(el,key){
 function nyushaCreateHabit(){
   var nameEl=document.getElementById('habit-name');
   var name=nameEl?nameEl.value.trim():'';
-  if(!name){if(nameEl)nameEl.focus();return;}
+  if(!name)name='Привычка';
   var iconIdx=0;
   var radios=document.querySelectorAll('[name="hicon"]');
   for(var i=0;i<radios.length;i++){if(radios[i].checked){iconIdx=i;break;}}
@@ -801,6 +801,27 @@ function nyushaCreateHabit(){
   if(nameEl)nameEl.value='';
   var hs=document.getElementById('hsheet');
   if(hs)hs.checked=false;
+  // Telegram haptic
+  try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
+  // Hide MainButton
+  try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.MainButton)Telegram.WebApp.MainButton.hide();}catch(e){}
+}
+// Setup MainButton for habit sheet
+function _hSetupMainBtn(){
+  if(!window.Telegram||!Telegram.WebApp||!Telegram.WebApp.MainButton)return;
+  var mb=Telegram.WebApp.MainButton;
+  var hs=document.getElementById('hsheet');
+  if(!hs)return;
+  hs.addEventListener('change',function(){
+    if(hs.checked){
+      mb.setText('Создать привычку');
+      mb.onClick(nyushaCreateHabit);
+      mb.show();
+    }else{
+      mb.hide();
+      try{mb.offClick(nyushaCreateHabit);}catch(e){}
+    }
+  });
 }
 // === END HABITS ===
 
@@ -813,6 +834,8 @@ function nyushaCreateHabit(){
     tg.setHeaderColor('#09080F');
     tg.setBackgroundColor('#09080F');
   }
+  _hSetupMainBtn();
+  nyushaRenderHabits();
 
   try{
     var affirm=document.getElementById('affirm');
@@ -842,8 +865,7 @@ function nyushaCreateHabit(){
     Array.prototype.forEach.call(document.querySelectorAll('.addf'),function(btn){btn.addEventListener('click',function(){var wrap=btn.parentElement;var inp=document.createElement('input');inp.className='newf';inp.placeholder='Свой фактор…';wrap.insertBefore(inp,btn);inp.focus();var done=false;var commit=function(){if(done)return;done=true;var v=inp.value.trim();if(v){var chip=document.createElement('span');chip.className='fchip on custom';var t=document.createElement('span');t.className='ctext';t.textContent=v;var x=document.createElement('span');x.className='cdel';x.textContent='✕';t.addEventListener('click',function(){chip.classList.toggle('on');});x.addEventListener('click',function(e){e.stopPropagation();chip.remove();});chip.appendChild(t);chip.appendChild(x);wrap.insertBefore(chip,btn);}inp.remove();};inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();commit();}});inp.addEventListener('blur',commit);});});
   }catch(e){}
 
-  // Habits — init on load
-  nyushaRenderHabits();
+
 
 
   // Energy tracking with localStorage
