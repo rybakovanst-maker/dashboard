@@ -733,6 +733,7 @@
 // === HABITS (global scope so onclick works) ===
 var _HABITS_KEY='nyusha_habits';
 var _ICONS=['💧','🧘','🏋️','📖','🚶','🌅','💊','🤸','✨'];
+var _hEditIdx=-1;
 function _hTodayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function _hLoad(){try{var r=localStorage.getItem(_HABITS_KEY);return r?JSON.parse(r):[];}catch(e){return[];}}
 function _hSave(h){try{localStorage.setItem(_HABITS_KEY,JSON.stringify(h));}catch(e){}}
@@ -773,11 +774,14 @@ function nyushaRenderHabits(){
         var row=document.createElement('div');
         row.className='habit habit-row';
         row.setAttribute('data-hi',idx);
-        row.innerHTML='<span class="drag-handle" style="font-size:1.2rem;color:var(--txt3);cursor:grab;padding:0 6px 0 0;touch-action:none;user-select:none;">⠿</span>'+
+        row.style.cursor='pointer';
+        row.innerHTML='<span class="drag-handle" style="font-size:1.2rem;color:var(--txt3);cursor:grab;padding:0 6px 0 0;touch-action:none;user-select:none;flex:none;">⠿</span>'+
           '<span class="ico">'+hh.icon+'</span>'+
-          '<span class="txt"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>';
+          '<span class="txt"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>'+
+          '<span style="color:var(--txt3);font-size:.8rem;flex:none;">изменить ›</span>';
         var handle=row.querySelector('.drag-handle');
         handle.addEventListener('touchstart',function(e){_hDragStart(e,row,allCard);},{passive:false});
+        (function(i){row.addEventListener('click',function(e){if(!e.target.classList.contains('drag-handle'))nyushaOpenEdit(i);});})(idx);
         allCard.appendChild(row);
       })(k,habits[k]);
     }
@@ -788,6 +792,47 @@ function nyushaToggleDone(el,key){
   el.textContent=done?'✓':'';
   try{localStorage.setItem(key,done?'1':'0');}catch(e){}
 }
+function _hGetFreq(){
+  if(document.getElementById('hf-days')&&document.getElementById('hf-days').checked)return'по дням';
+  if(document.getElementById('hf-times')&&document.getElementById('hf-times').checked){
+    var ntEl=document.querySelector('[name="ntimes"]:checked');
+    var n=ntEl?ntEl.nextElementSibling.textContent.replace('×','').trim():'3';
+    return n+'× в неделю';
+  }
+  return'ежедневно';
+}
+function nyushaOpenEdit(idx){
+  var habits=_hLoad();
+  var h=habits[idx];
+  if(!h)return;
+  _hEditIdx=idx;
+  var nameEl=document.getElementById('habit-name');
+  if(nameEl)nameEl.value=h.name;
+  // set icon radio
+  var iconPos=_ICONS.indexOf(h.icon);
+  var radios=document.querySelectorAll('[name="hicon"]');
+  for(var i=0;i<radios.length;i++)radios[i].checked=(i===iconPos);
+  // set freq radio
+  var freqDaily=document.getElementById('hf-daily');
+  var freqDays=document.getElementById('hf-days');
+  var freqTimes=document.getElementById('hf-times');
+  if(h.freq==='по дням'&&freqDays){freqDays.checked=true;}
+  else if(h.freq.indexOf('в неделю')>-1&&freqTimes){
+    freqTimes.checked=true;
+    var n=parseInt(h.freq)||3;
+    var ntEl=document.getElementById('nt'+n);
+    if(ntEl)ntEl.checked=true;
+  }else if(freqDaily){freqDaily.checked=true;}
+  // update sheet title
+  var shTitle=document.querySelector('#w-habit .sheet-h b');
+  if(shTitle)shTitle.textContent='Редактировать';
+  // update button text
+  var btn=document.getElementById('create-habit');
+  if(btn)btn.textContent='Сохранить изменения';
+  // open sheet
+  var hs=document.getElementById('hsheet');
+  if(hs)hs.checked=true;
+}
 function nyushaCreateHabit(){
   var nameEl=document.getElementById('habit-name');
   var name=nameEl?nameEl.value.trim():'';
@@ -795,19 +840,25 @@ function nyushaCreateHabit(){
   var iconIdx=0;
   var radios=document.querySelectorAll('[name="hicon"]');
   for(var i=0;i<radios.length;i++){if(radios[i].checked){iconIdx=i;break;}}
-  var freq='ежедневно';
-  if(document.getElementById('hf-days')&&document.getElementById('hf-days').checked)freq='по дням';
-  else if(document.getElementById('hf-times')&&document.getElementById('hf-times').checked)freq='N в неделю';
+  var freq=_hGetFreq();
   var habits=_hLoad();
-  habits.push({name:name,icon:_ICONS[iconIdx]||'✨',freq:freq});
+  if(_hEditIdx>=0&&habits[_hEditIdx]){
+    habits[_hEditIdx]={name:name,icon:_ICONS[iconIdx]||'✨',freq:freq};
+  }else{
+    habits.push({name:name,icon:_ICONS[iconIdx]||'✨',freq:freq});
+  }
+  _hEditIdx=-1;
   _hSave(habits);
   nyushaRenderHabits();
   if(nameEl)nameEl.value='';
+  // reset sheet title/button
+  var shTitle=document.querySelector('#w-habit .sheet-h b');
+  if(shTitle)shTitle.textContent='Новая привычка';
+  var btn=document.getElementById('create-habit');
+  if(btn)btn.textContent='Сохранить привычку';
   var hs=document.getElementById('hsheet');
   if(hs)hs.checked=false;
-  // Telegram haptic
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
-  // Hide MainButton
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.MainButton)Telegram.WebApp.MainButton.hide();}catch(e){}
 }
 function _hDragStart(e,row,container){
