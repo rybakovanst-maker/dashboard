@@ -2,6 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Личный дашборд</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -938,6 +940,10 @@ function nyushaRenderGoals(){
         nyushaRenderGoals();
         try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.impactOccurred('light');}catch(e){}
       });
+      var pressTimer;
+      div.addEventListener('touchstart',function(){pressTimer=setTimeout(function(){if(confirm('Удалить цель «'+g.name+'»?')){var gs=_gLoad();gs.splice(idx,1);_gSave(gs);nyushaRenderGoals();}},600);});
+      div.addEventListener('touchend',function(){clearTimeout(pressTimer);});
+      div.addEventListener('touchmove',function(){clearTimeout(pressTimer);});
       list.appendChild(div);
     })(i,goals[i]);
   }
