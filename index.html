@@ -369,24 +369,11 @@
     <!-- ===== ЭНЕРГИЯ ===== -->
     <section id="s-habits" class="view">
       <div class="phead"><h2>Энергия</h2></div>
-      <!-- gauge summary -->
-      <div class="card">
-        <div class="chead"><b>Заряд дня</b></div>
-        <div class="energy">
-          <div class="gauge">
-            <svg width="92" height="92" viewBox="0 0 96 96">
-              <defs><linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4C6BFF"/><stop offset=".5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#C24BE8"/></linearGradient></defs>
-              <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/>
-              <circle id="gauge-circle" cx="48" cy="48" r="40" fill="none" stroke="#8B5CF6" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" transform="rotate(-90 48 48)"/>
-            </svg>
-            <div class="cx"><b id="gauge-val" style="color:var(--txt3)">—</b><small id="gauge-label">Утро</small></div>
-          </div>
-          <div class="elegend">
-            <div class="erow"><span class="d" style="background:var(--blue)"></span><span class="n">Заряд утром</span><span class="v" id="ev-morning" style="color:var(--txt3)">ждёт</span></div>
-            <div class="erow"><span class="d" style="background:var(--txt3)"></span><span class="n">Заряд вечером</span><span class="v" id="ev-evening" style="color:var(--txt3)">ждёт</span></div>
-            <div class="erow"><span class="d" style="background:var(--green)"></span><span class="n">Сон</span><span class="v" id="ev-sleep" style="color:var(--txt3)">ждёт</span></div>
-          </div>
-        </div>
+      <!-- hidden elements for JS compatibility -->
+      <div style="display:none">
+        <svg><circle id="gauge-circle"/></svg>
+        <b id="gauge-val"></b><small id="gauge-label"></small>
+        <span id="ev-morning"></span><span id="ev-evening"></span><span id="ev-sleep"></span>
       </div>
       <!-- inline measurement form -->
       <div class="card">
