@@ -281,9 +281,10 @@
     .fchip.custom .ctext{cursor:pointer;}
     .fchip.custom .cdel{font-size:.68rem;opacity:.7;cursor:pointer;}
     .fchip.custom .cdel:hover{opacity:1;}
-    .note{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px;color:var(--txt);font-family:inherit;font-size:.88rem;margin-top:6px;}
+    .note{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px;color:var(--txt);font-family:inherit;font-size:.88rem;margin-top:6px;box-sizing:border-box;}
     .note::placeholder{color:var(--txt3);}
     .note:focus{outline:2px solid var(--violet);}
+    textarea.note{resize:none;overflow:hidden;min-height:42px;line-height:1.5;display:block;}
     .savebtn{display:block;width:100%;margin-top:20px;padding:13px;border-radius:14px;border:0;background:var(--grad);color:#fff;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;box-shadow:0 12px 26px -10px rgba(139,92,246,.7);text-align:center;}
     .seg2{display:flex;background:var(--card2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px;margin-top:6px;}
     .seg2 label{flex:1;text-align:center;font-size:.78rem;font-weight:600;color:var(--txt2);padding:8px 4px;border-radius:8px;cursor:pointer;}
@@ -434,7 +435,7 @@
             <button class="fchip" type="button" data-v="5" onclick="_eReflMood(5)">💪</button>
           </div>
         </div>
-        <input class="note" type="text" id="refl-win" placeholder="Главное за сегодня...">
+        <textarea class="note" id="refl-win" placeholder="Главное за сегодня..." rows="1"></textarea>
         <div class="field">
           <div class="fgroup give">↑ Что прибавило энергию</div>
           <div class="fchips">
@@ -457,7 +458,7 @@
             <button class="fchip addf">＋ Добавить</button>
           </div>
         </div>
-        <input class="note" type="text" id="energy-note" placeholder="Заметка...">
+        <textarea class="note" id="energy-note" placeholder="Заметка..." rows="1"></textarea>
         <button class="savebtn" id="save-energy" type="button" onclick="nyushaSaveEnergy()">Сохранить</button>
       </div>
       <!-- chart removed -->
@@ -502,7 +503,7 @@
         </div>
 
         <div class="ssec">🌅 Завтрак</div>
-        <input class="note" type="text" id="note-breakfast" placeholder="Что ела..." onblur="_bodyNoteBlur('breakfast',this)">
+        <textarea class="note" id="note-breakfast" placeholder="Что ела..." onblur="_bodyNoteBlur('breakfast',this)" rows="1"></textarea>
         <div class="fchips" id="feel-breakfast">
           <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('breakfast','light')">😌 Лёгкость</button>
           <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('breakfast','neutral')">😐 Нейтрально</button>
@@ -510,7 +511,7 @@
         </div>
 
         <div class="ssec">🍎 Перекус</div>
-        <input class="note" type="text" id="note-snack1" placeholder="Что ела..." onblur="_bodyNoteBlur('snack1',this)">
+        <textarea class="note" id="note-snack1" placeholder="Что ела..." onblur="_bodyNoteBlur('snack1',this)" rows="1"></textarea>
         <div class="fchips" id="feel-snack1">
           <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('snack1','light')">😌 Лёгкость</button>
           <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('snack1','neutral')">😐 Нейтрально</button>
@@ -518,7 +519,7 @@
         </div>
 
         <div class="ssec">☀️ Обед</div>
-        <input class="note" type="text" id="note-lunch" placeholder="Что ела..." onblur="_bodyNoteBlur('lunch',this)">
+        <textarea class="note" id="note-lunch" placeholder="Что ела..." onblur="_bodyNoteBlur('lunch',this)" rows="1"></textarea>
         <div class="fchips" id="feel-lunch">
           <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('lunch','light')">😌 Лёгкость</button>
           <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('lunch','neutral')">😐 Нейтрально</button>
@@ -526,7 +527,7 @@
         </div>
 
         <div class="ssec">🍊 Перекус</div>
-        <input class="note" type="text" id="note-snack2" placeholder="Что ела..." onblur="_bodyNoteBlur('snack2',this)">
+        <textarea class="note" id="note-snack2" placeholder="Что ела..." onblur="_bodyNoteBlur('snack2',this)" rows="1"></textarea>
         <div class="fchips" id="feel-snack2">
           <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('snack2','light')">😌 Лёгкость</button>
           <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('snack2','neutral')">😐 Нейтрально</button>
@@ -534,7 +535,7 @@
         </div>
 
         <div class="ssec">🌙 Ужин</div>
-        <input class="note" type="text" id="note-dinner" placeholder="Что ела..." onblur="_bodyNoteBlur('dinner',this)">
+        <textarea class="note" id="note-dinner" placeholder="Что ела..." onblur="_bodyNoteBlur('dinner',this)" rows="1"></textarea>
         <div class="fchips" id="feel-dinner">
           <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('dinner','light')">😌 Лёгкость</button>
           <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('dinner','neutral')">😐 Нейтрально</button>
@@ -876,10 +877,10 @@ function _eLoadForOffset(offset){
     if(def.arr.indexOf(lbl.textContent.trim())>-1)lbl.classList.add('on');
   });
   ['morning','sleep','evening','mood'].forEach(function(f){if(data[f]!=null)_eEmoji(f,_eClosestEmoji(data[f]));});
-  var noteEl=document.getElementById('energy-note');if(noteEl)noteEl.value=data.note||'';
+  var noteEl=document.getElementById('energy-note');if(noteEl){noteEl.value=data.note||'';noteEl.style.height='auto';noteEl.style.height=noteEl.scrollHeight+'px';}
   _eReflMoodVal=0;document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){b.classList.remove('on');});
   if(data.refl_mood)_eReflMood(data.refl_mood);
-  var rwEl=document.getElementById('refl-win');if(rwEl)rwEl.value=data.refl_win||'';
+  var rwEl=document.getElementById('refl-win');if(rwEl){rwEl.value=data.refl_win||'';rwEl.style.height='auto';rwEl.style.height=rwEl.scrollHeight+'px';}
   // restore custom chips
   var restoreCustom=function(sectionClass,arr,stdIds){
     var section=document.querySelector('.fgroup.'+sectionClass);if(!section)return;
@@ -983,7 +984,7 @@ function _bodyLoadFood(offset){
   var data=raw?JSON.parse(raw):{};
   ['breakfast','snack1','lunch','snack2','dinner'].forEach(function(meal){
     var d=data[meal]||{};
-    var noteEl=document.getElementById('note-'+meal);if(noteEl)noteEl.value=d.note||'';
+    var noteEl=document.getElementById('note-'+meal);if(noteEl){noteEl.value=d.note||'';noteEl.style.height='auto';noteEl.style.height=noteEl.scrollHeight+'px';}
     var row=document.getElementById('feel-'+meal);
     if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===(d.feel||''));});
   });
@@ -1376,6 +1377,10 @@ function nyushaCreateGoal(){
   nyushaRenderHabits();
   nyushaRenderGoals();
   nyushaInitBody();
+  // textarea auto-resize
+  document.querySelectorAll('textarea.note').forEach(function(ta){
+    ta.addEventListener('input',function(){this.style.height='auto';this.style.height=this.scrollHeight+'px';});
+  });
 
   // greeting by time of day
   (function(){
