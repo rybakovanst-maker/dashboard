@@ -397,9 +397,9 @@
     <section id="s-state" class="view">
       <div class="phead"><h2>Состояние</h2></div>
       <div class="card insights">
-        <div class="chead"><b>💡 Инсайты</b><span class="sub">появятся через 7 дней</span></div>
-        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
-          Отмечай энергию каждый день —<br>через неделю появятся первые закономерности.
+        <div class="chead"><b>💡 Инсайты</b><span class="sub" id="insights-sub">нет данных</span></div>
+        <div id="insights-body" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Отмечай энергию каждый день —<br>через 3 дня появятся первые закономерности.
         </div>
       </div>
       <div class="card">
@@ -418,9 +418,9 @@
         </svg>
         <div id="chart-legend" class="clegend" style="display:none"><span><i style="background:var(--violet)"></i>Вечер</span><span><i style="background:rgba(76,107,255,.7)"></i>Утро</span><span id="chart-avg" style="margin-left:auto;color:var(--txt3)"></span></div>
       </div>
-      <div class="card">
+      <div class="card" id="influence-card">
         <div class="chead"><b>Что влияет на энергию</b></div>
-        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+        <div id="influence-body" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
           Данные появятся после нескольких замеров.<br>Тапни «＋ отметить заряд» на вкладке Сегодня.
         </div>
       </div>
@@ -1227,6 +1227,74 @@ function nyushaCreateGoal(){
       var sh=document.getElementById('sheet');
       if(sh)sh.checked=false;
     }
+    function collectEnergyDays(n){
+      var days=[];
+      var now=new Date();
+      for(var i=0;i<n;i++){
+        var d=new Date(now);d.setDate(now.getDate()-i);
+        var key=ENERGY_KEY+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+        var raw=localStorage.getItem(key);
+        if(raw)try{days.push(JSON.parse(raw));}catch(e){}
+      }
+      return days;
+    }
+    function updateInfluence(){
+      var days=collectEnergyDays(30);
+      var body=document.getElementById('influence-body');
+      if(!body)return;
+      if(days.length<2){body.innerHTML='<div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">Данные появятся после нескольких замеров.<br>Тапни «＋ отметить заряд» на вкладке Сегодня.</div>';return;}
+      var giveMap={},takeMap={};
+      days.forEach(function(d){
+        (d.give||[]).forEach(function(v){giveMap[v]=(giveMap[v]||0)+1;});
+        (d.take||[]).forEach(function(v){takeMap[v]=(takeMap[v]||0)+1;});
+      });
+      var sort=function(m){return Object.keys(m).map(function(k){return{l:k,n:m[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,5);};
+      var gives=sort(giveMap),takes=sort(takeMap);
+      var max=1;gives.concat(takes).forEach(function(x){if(x.n>max)max=x.n;});
+      var bars=function(arr,cls,color){
+        if(!arr.length)return '<div style="color:var(--txt3);font-size:.8rem;padding:4px 0;">нет данных</div>';
+        return arr.map(function(x){
+          var pct=Math.round(x.n/max*100);
+          return '<div style="margin:5px 0;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span style="font-size:.8rem;flex:1;">'+x.l+'</span><span style="font-size:.73rem;color:var(--txt3);">'+x.n+'×</span></div>'+
+            '<div style="height:5px;border-radius:3px;background:var(--line);overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:3px;transition:width .4s;"></div></div></div>';
+        }).join('');
+      };
+      body.innerHTML=
+        '<div style="margin-bottom:12px;"><div class="glabel give" style="font-size:.78rem;font-weight:700;margin-bottom:6px;">↑ Прибавляет</div>'+bars(gives,'give','var(--green)')+'</div>'+
+        '<div><div class="glabel take" style="font-size:.78rem;font-weight:700;margin-bottom:6px;">↓ Забирает</div>'+bars(takes,'take','var(--warm)')+'</div>';
+    }
+    function updateInsights(){
+      var days=collectEnergyDays(30);
+      var body=document.getElementById('insights-body');
+      var sub=document.getElementById('insights-sub');
+      if(!body)return;
+      if(days.length<3){return;}
+      var mornings=days.filter(function(d){return d.morning;}).map(function(d){return d.morning;});
+      var evenings=days.filter(function(d){return d.evening&&d.evening>0;}).map(function(d){return d.evening;});
+      var avg=function(arr){return arr.length?(arr.reduce(function(a,b){return a+b;},0)/arr.length):0;};
+      var avgM=avg(mornings),avgE=avg(evenings);
+      var trend='';
+      if(days.length>=5){
+        var recentM=avg(days.slice(0,3).filter(function(d){return d.morning;}).map(function(d){return d.morning;}));
+        var oldM=avg(days.slice(-3).filter(function(d){return d.morning;}).map(function(d){return d.morning;}));
+        if(recentM>oldM+0.5)trend='📈 Утренняя энергия растёт';
+        else if(recentM<oldM-0.5)trend='📉 Утренняя энергия снижается';
+        else trend='➡️ Энергия стабильна';
+      }
+      var sleeps=days.filter(function(d){return d.sleep;}).map(function(d){return d.sleep;});
+      var avgSleep=avg(sleeps);
+      var insights=[];
+      if(trend)insights.push(trend);
+      if(avgM>0)insights.push('🌅 Среднее утро: <b>'+avgM.toFixed(1)+'/10</b>');
+      if(avgE>0)insights.push('🌙 Средний вечер: <b>'+avgE.toFixed(1)+'/10</b>');
+      if(avgSleep>0)insights.push('😴 Качество сна: <b>'+avgSleep.toFixed(1)+'/10</b>');
+      if(avgM>0&&avgSleep>0){
+        var corr=avgSleep>7&&avgM>7?'Хороший сон — высокая утренняя энергия ✓':avgSleep<5&&avgM<5?'Сон влияет на заряд: и то, и другое низкое':'';
+        if(corr)insights.push('💡 '+corr);
+      }
+      if(sub)sub.textContent='за '+days.length+' дней';
+      body.innerHTML=insights.map(function(t){return '<div style="padding:5px 0;font-size:.84rem;border-bottom:1px solid var(--line);">'+t+'</div>';}).join('')||body.innerHTML;
+    }
     function updateEnergyDisplay(){
       var today=localStorage.getItem(todayKey());
       var d=today?JSON.parse(today):null;
@@ -1246,6 +1314,8 @@ function nyushaCreateGoal(){
         if(circle){circle.setAttribute('stroke-dashoffset','125.6');}
       }
       updateChart();
+      updateInfluence();
+      updateInsights();
     }
     function updateChart(){
       var days=14;
