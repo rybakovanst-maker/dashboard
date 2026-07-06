@@ -40,6 +40,7 @@
     .view{display:none;}
     #r-today:checked ~ .content #s-today,
     #r-habits:checked ~ .content #s-habits,
+    #r-body:checked ~ .content #s-body,
     #r-wheel:checked ~ .content #s-wheel,
     #r-motiv:checked ~ .content #s-motiv{display:block;animation:fadein .28s ease;}
     @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -229,14 +230,16 @@
     .fcard.g1::after,.fcard.g2::after{content:"";position:absolute;right:-30px;top:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 68%);}
     .backrow{display:flex;align-items:center;gap:8px;color:var(--txt2);font-size:.85rem;font-weight:600;cursor:pointer;padding:4px 2px 10px;}
 
-    .nav{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;flex:none;padding:11px 6px calc(6px + env(safe-area-inset-bottom));border-top:1px solid var(--line2);background:#0A0813;}
+    .nav{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;flex:none;padding:11px 6px calc(6px + env(safe-area-inset-bottom));border-top:1px solid var(--line2);background:#0A0813;}
     .nav label{display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--txt3);font-size:.66rem;font-weight:600;cursor:pointer;}
     .nav .ni{width:44px;height:33px;border-radius:12px;display:grid;place-items:center;color:inherit;}
     #r-today:checked ~ .nav [for="r-today"],
     #r-habits:checked ~ .nav [for="r-habits"],
+    #r-body:checked ~ .nav [for="r-body"],
     #r-wheel:checked ~ .nav [for="r-wheel"]{color:var(--txt);}
     #r-today:checked ~ .nav [for="r-today"] .ni,
     #r-habits:checked ~ .nav [for="r-habits"] .ni,
+    #r-body:checked ~ .nav [for="r-body"] .ni,
     #r-wheel:checked ~ .nav [for="r-wheel"] .ni{background:var(--grad);color:#fff;box-shadow:0 8px 18px -6px rgba(139,92,246,.8);}
 
     .sheet-wrap{position:absolute;inset:0;z-index:30;display:none;}
@@ -318,6 +321,7 @@
 <div class="screen">
   <input class="ctl" type="radio" name="scr" id="r-today" checked>
   <input class="ctl" type="radio" name="scr" id="r-habits">
+  <input class="ctl" type="radio" name="scr" id="r-body">
   <input class="ctl" type="radio" name="scr" id="r-wheel">
   <input class="ctl" type="radio" name="scr" id="r-motiv">
 
@@ -446,6 +450,74 @@
       </div>
     </section>
 
+    <!-- ===== ТЕЛО ===== -->
+    <section id="s-body" class="view">
+      <div class="phead"><h2>Тело</h2></div>
+
+      <div class="card">
+        <div class="chead"><b>⚖️ Вес</b></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 0 14px;">
+          <input type="number" id="weight-input" step="0.1" min="40" max="200" placeholder="кг" style="flex:1;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;color:var(--txt);font-size:1rem;font-family:inherit;outline:none;-moz-appearance:textfield;">
+          <button id="weight-save-btn" type="button" onclick="nyushaSaveWeight()" style="background:var(--grad);border:none;border-radius:12px;padding:10px 18px;color:#fff;font-size:.88rem;font-weight:600;cursor:pointer;white-space:nowrap;">Сохранить</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;">
+          <div style="background:var(--card2);border-radius:12px;padding:10px 4px;"><b id="wst-current" style="display:block;font-size:1.1rem;">—</b><small style="color:var(--txt3);font-size:.72rem;">сейчас</small></div>
+          <div style="background:var(--card2);border-radius:12px;padding:10px 4px;"><b id="wst-lost" style="display:block;font-size:1.1rem;color:var(--green);">—</b><small style="color:var(--txt3);font-size:.72rem;">ушло</small></div>
+          <div style="background:var(--card2);border-radius:12px;padding:10px 4px;"><b id="wst-left" style="display:block;font-size:1.1rem;color:var(--violet);">—</b><small style="color:var(--txt3);font-size:.72rem;">до цели</small></div>
+        </div>
+        <div style="margin-top:14px;">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--txt3);margin-bottom:5px;"><span>Цель: 82 кг</span><span id="wst-pct">0%</span></div>
+          <div style="background:var(--line);border-radius:8px;height:8px;overflow:hidden;">
+            <div id="weight-bar" style="height:100%;background:var(--grad);border-radius:8px;width:0%;transition:width .5s;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chead"><b>🍽 Питание</b><span class="sub">самочувствие после еды</span></div>
+
+        <div class="ssec">🌅 Завтрак</div>
+        <input class="note" type="text" id="note-breakfast" placeholder="Что ела..." onblur="_bodyNoteBlur('breakfast',this)">
+        <div class="fchips" id="feel-breakfast">
+          <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('breakfast','light')">😌 Лёгкость</button>
+          <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('breakfast','neutral')">😐 Нейтрально</button>
+          <button class="fchip" type="button" data-v="heavy" onclick="_bodyFeel('breakfast','heavy')">😣 Тяжесть</button>
+        </div>
+
+        <div class="ssec">🍎 Перекус</div>
+        <input class="note" type="text" id="note-snack1" placeholder="Что ела..." onblur="_bodyNoteBlur('snack1',this)">
+        <div class="fchips" id="feel-snack1">
+          <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('snack1','light')">😌 Лёгкость</button>
+          <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('snack1','neutral')">😐 Нейтрально</button>
+          <button class="fchip" type="button" data-v="heavy" onclick="_bodyFeel('snack1','heavy')">😣 Тяжесть</button>
+        </div>
+
+        <div class="ssec">☀️ Обед</div>
+        <input class="note" type="text" id="note-lunch" placeholder="Что ела..." onblur="_bodyNoteBlur('lunch',this)">
+        <div class="fchips" id="feel-lunch">
+          <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('lunch','light')">😌 Лёгкость</button>
+          <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('lunch','neutral')">😐 Нейтрально</button>
+          <button class="fchip" type="button" data-v="heavy" onclick="_bodyFeel('lunch','heavy')">😣 Тяжесть</button>
+        </div>
+
+        <div class="ssec">🍊 Перекус</div>
+        <input class="note" type="text" id="note-snack2" placeholder="Что ела..." onblur="_bodyNoteBlur('snack2',this)">
+        <div class="fchips" id="feel-snack2">
+          <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('snack2','light')">😌 Лёгкость</button>
+          <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('snack2','neutral')">😐 Нейтрально</button>
+          <button class="fchip" type="button" data-v="heavy" onclick="_bodyFeel('snack2','heavy')">😣 Тяжесть</button>
+        </div>
+
+        <div class="ssec">🌙 Ужин</div>
+        <input class="note" type="text" id="note-dinner" placeholder="Что ела..." onblur="_bodyNoteBlur('dinner',this)">
+        <div class="fchips" id="feel-dinner">
+          <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('dinner','light')">😌 Лёгкость</button>
+          <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('dinner','neutral')">😐 Нейтрально</button>
+          <button class="fchip" type="button" data-v="heavy" onclick="_bodyFeel('dinner','heavy')">😣 Тяжесть</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== КОЛЕСО ===== -->
     <section id="s-wheel" class="view">
       <div class="phead"><h2>Колесо</h2>
@@ -541,6 +613,7 @@
   <nav class="nav">
     <label for="r-today"><span class="ni"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 8.5 10 3l7 5.5V16a1 1 0 0 1-1 1h-3v-5H7v5H4a1 1 0 0 1-1-1V8.5Z"/></svg></span>Сегодня</label>
     <label for="r-habits"><span class="ni"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 3 7 11h5l-1.5 6 5.5-8h-5l1.5-6z"/></svg></span>Энергия</label>
+    <label for="r-body"><span class="ni"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="5" r="2"/><path d="M7 9h6l1 7H6L7 9z"/><path d="M8 16l-1 3M12 16l1 3"/></svg></span>Тело</label>
     <label for="r-wheel"><span class="ni"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="3"/></svg></span>Колесо</label>
   </nav>
 
@@ -853,6 +926,75 @@ function nyushaSaveEnergy(){
 })();
 // === END ENERGY ===
 
+// === BODY (weight + food) ===
+var _WEIGHT_KEY_PFX='nyusha_weight_';
+var _FOOD_KEY_PFX='nyusha_food_';
+var _BODY_GOAL=82;
+function _bodyTodayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function nyushaSaveWeight(){
+  var inp=document.getElementById('weight-input');
+  if(!inp||!inp.value)return;
+  var w=parseFloat(inp.value);
+  if(isNaN(w)||w<30||w>300)return;
+  localStorage.setItem(_WEIGHT_KEY_PFX+_bodyTodayKey(),JSON.stringify({weight:w}));
+  nyushaUpdateWeightStats();
+  var btn=document.getElementById('weight-save-btn');
+  if(btn){btn.textContent='Сохранено ✓';setTimeout(function(){btn.textContent='Сохранить';},1200);}
+  try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
+}
+function nyushaUpdateWeightStats(){
+  var records=[];
+  for(var k in localStorage){
+    if(k.indexOf(_WEIGHT_KEY_PFX)===0){
+      try{var r=JSON.parse(localStorage.getItem(k));if(r&&r.weight)records.push({date:k.replace(_WEIGHT_KEY_PFX,''),w:r.weight});}catch(e){}
+    }
+  }
+  records.sort(function(a,b){return a.date>b.date?1:a.date<b.date?-1:0;});
+  var today=_bodyTodayKey();
+  var todayRec=null;for(var i=0;i<records.length;i++){if(records[i].date===today){todayRec=records[i];break;}}
+  var current=todayRec?todayRec.w:(records.length?records[records.length-1].w:null);
+  var first=records.length?records[0].w:null;
+  var lost=first&&current?(first-current):0;
+  var left=current!==null?Math.max(0,current-_BODY_GOAL):null;
+  var inp=document.getElementById('weight-input');if(inp&&!inp.value&&current)inp.value=current;
+  var elC=document.getElementById('wst-current');if(elC)elC.textContent=current?current+' кг':'—';
+  var elL=document.getElementById('wst-lost');if(elL)elL.textContent=lost>0.05?'-'+lost.toFixed(1)+' кг':lost<-0.05?'+'+Math.abs(lost).toFixed(1)+' кг':'—';
+  var elT=document.getElementById('wst-left');if(elT)elT.textContent=left!==null?(left>0?left.toFixed(1)+' кг':'Цель!'):'—';
+  var pct=0;if(first&&current&&first>_BODY_GOAL)pct=Math.min(100,Math.max(0,(first-current)/(first-_BODY_GOAL)*100));
+  var elP=document.getElementById('wst-pct');if(elP)elP.textContent=Math.round(pct)+'%';
+  var bar=document.getElementById('weight-bar');if(bar)bar.style.width=pct+'%';
+}
+function _bodyFeel(meal,val){
+  var today=_bodyTodayKey();
+  var raw=localStorage.getItem(_FOOD_KEY_PFX+today);
+  var data=raw?JSON.parse(raw):{};
+  if(!data[meal])data[meal]={};
+  data[meal].feel=val;
+  localStorage.setItem(_FOOD_KEY_PFX+today,JSON.stringify(data));
+  var row=document.getElementById('feel-'+meal);
+  if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===val);});
+}
+function _bodyNoteBlur(meal,el){
+  var today=_bodyTodayKey();
+  var raw=localStorage.getItem(_FOOD_KEY_PFX+today);
+  var data=raw?JSON.parse(raw):{};
+  if(!data[meal])data[meal]={};
+  data[meal].note=el.value;
+  localStorage.setItem(_FOOD_KEY_PFX+today,JSON.stringify(data));
+}
+function nyushaInitBody(){
+  nyushaUpdateWeightStats();
+  var today=_bodyTodayKey();
+  var raw=localStorage.getItem(_FOOD_KEY_PFX+today);
+  var data=raw?JSON.parse(raw):{};
+  ['breakfast','snack1','lunch','snack2','dinner'].forEach(function(meal){
+    var d=data[meal]||{};
+    var noteEl=document.getElementById('note-'+meal);if(noteEl&&d.note)noteEl.value=d.note;
+    if(d.feel){var row=document.getElementById('feel-'+meal);if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===d.feel);});}
+  });
+}
+// === END BODY ===
+
 // === HABITS (global scope so onclick works) ===
 var _HABITS_KEY='nyusha_habits';
 var _ICONS=['💧','🧘','🏋️','📖','🚶','🌅','💊','🤸','✨'];
@@ -1122,6 +1264,7 @@ function nyushaCreateGoal(){
   }
   nyushaRenderHabits();
   nyushaRenderGoals();
+  nyushaInitBody();
 
   // greeting by time of day
   (function(){
