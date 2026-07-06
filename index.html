@@ -888,6 +888,10 @@ var _HABITS_KEY='nyusha_habits';
 var _ICONS=['💧','🧘','🏋️','📖','🚶','🌅','💊','🤸','✨'];
 var _hEditIdx=-1;
 function _hTodayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function _hDayKey(daysBack){var d=new Date();d.setDate(d.getDate()-daysBack);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function _hDoneKeyOff(daysBack,idx){return'nyusha_done_'+_hDayKey(daysBack)+'_'+idx;}
+function _hStreak(idx){var s=0;for(var i=0;i<365;i++){if(localStorage.getItem(_hDoneKeyOff(i,idx))==='1')s++;else break;}return s;}
+function _hWeekDots(idx){var dots='';for(var i=6;i>=0;i--){dots+=localStorage.getItem(_hDoneKeyOff(i,idx))==='1'?'<span style="color:var(--green)">●</span>':'<span style="color:var(--line)">●</span>';}return dots;}
 function _hLoad(){try{var r=localStorage.getItem(_HABITS_KEY);return r?JSON.parse(r):[];}catch(e){return[];}}
 function _hSave(h){try{localStorage.setItem(_HABITS_KEY,JSON.stringify(h));}catch(e){}}
 function nyushaRenderHabits(){
@@ -924,14 +928,17 @@ function nyushaRenderHabits(){
     for(var j=0;j<rows.length;j++)rows[j].remove();
     for(var k=0;k<habits.length;k++){
       (function(idx,hh){
+        var streak=_hStreak(idx);
+        var dots=_hWeekDots(idx);
         var row=document.createElement('div');
         row.className='habit habit-row';
         row.setAttribute('data-hi',idx);
-        row.style.cursor='pointer';
+        row.style.cssText='cursor:pointer;flex-wrap:wrap;';
         row.innerHTML='<span class="drag-handle" style="font-size:1.2rem;color:var(--txt3);cursor:grab;padding:0 6px 0 0;touch-action:none;user-select:none;flex:none;">⠿</span>'+
           '<span class="ico">'+hh.icon+'</span>'+
-          '<span class="txt"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>'+
-          '<span style="color:var(--txt3);font-size:.8rem;flex:none;">изменить ›</span>';
+          '<span class="txt" style="flex:1;min-width:0;"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>'+
+          (streak>0?'<span class="streak" style="font-size:.8rem;flex:none;">🔥'+streak+'</span>':'<span style="color:var(--txt3);font-size:.8rem;flex:none;">—</span>')+
+          '<div style="width:100%;padding:5px 0 2px 46px;font-size:.72rem;letter-spacing:3px;">'+dots+'</div>';
         var handle=row.querySelector('.drag-handle');
         handle.addEventListener('touchstart',function(e){_hDragStart(e,row,allCard,'hi',_hLoad,_hSave,nyushaRenderHabits);},{passive:false});
         (function(i){row.addEventListener('click',function(e){if(!e.target.classList.contains('drag-handle'))nyushaOpenEdit(i);});})(idx);
@@ -939,11 +946,30 @@ function nyushaRenderHabits(){
       })(k,habits[k]);
     }
   }
+  // update summary stats
+  var st=document.querySelectorAll('#s-habits .stats3 .st b');
+  if(st.length>=3&&habits.length){
+    var todayDone=0;
+    for(var m=0;m<habits.length;m++){if(localStorage.getItem('nyusha_done_'+_hTodayKey()+'_'+m)==='1')todayDone++;}
+    var bestStreak=0;
+    for(var n=0;n<habits.length;n++){var s=_hStreak(n);if(s>bestStreak)bestStreak=s;}
+    var weekTotal=0;
+    for(var p=0;p<habits.length;p++){for(var q=0;q<7;q++){if(localStorage.getItem(_hDoneKeyOff(q,p))==='1')weekTotal++;}}
+    var weekPct=Math.round(weekTotal/(habits.length*7)*100);
+    st[0].innerHTML='<span class="g">'+todayDone+'/'+habits.length+'</span>';
+    st[1].innerHTML=bestStreak>0?'🔥'+bestStreak:'—';
+    st[2].innerHTML=weekPct+'%';
+    st[1].style.color=''; st[2].style.color='';
+    // hide "no activity" placeholder
+    var ph=document.querySelector('#s-habits .card:not(#all-habits-card) [style*="padding:24px"]');
+    if(ph&&todayDone>0)ph.parentElement.style.display='none';
+  }
 }
 function nyushaToggleDone(el,key){
   var done=el.textContent!=='✓';
   el.textContent=done?'✓':'';
   try{localStorage.setItem(key,done?'1':'0');}catch(e){}
+  nyushaRenderHabits();
 }
 function _hGetFreq(){
   if(document.getElementById('hf-days')&&document.getElementById('hf-days').checked)return'по дням';
