@@ -841,14 +841,15 @@ function nyushaSaveEnergy(){
     wrap.querySelectorAll('.fchip.custom.on .ctext').forEach(function(el){out.push(el.textContent.trim());});
     return out;
   };
+  var uniq=function(arr){var s={};return arr.filter(function(v){return s[v]?false:(s[v]=true);});};
   var data={
     morning:val('sl-morning'),
     sleep:val('sl-sleep'),
     evening:val('sl-evening'),
     mood:val('sl-mood'),
     note:(document.getElementById('energy-note')||{}).value||'',
-    give:_eGive.slice().concat(customFromSection('give')),
-    take:_eTake.slice().concat(customFromSection('take'))
+    give:uniq(_eGive.slice().concat(customFromSection('give'))),
+    take:uniq(_eTake.slice().concat(customFromSection('take')))
   };
   try{localStorage.setItem(_eKeyForOffset(_eDateOffset),JSON.stringify(data));}catch(e){}
   setTimeout(function(){
