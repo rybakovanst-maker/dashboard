@@ -383,25 +383,45 @@
         </div>
         <div class="ssec">🌅 Утро</div>
         <div class="field">
-          <div class="flabel"><span>Заряд с утра</span><b id="lbl-morning">5/10</b></div>
-          <input class="slider" id="sl-morning" type="range" min="1" max="10" value="5">
-          <div class="ticks"><span>разбита</span><span>бодра</span></div>
+          <div class="flabel"><span>Заряд с утра</span></div>
+          <div class="fchips" id="emoji-morning">
+            <button class="fchip" type="button" data-v="2" onclick="_eEmoji('morning',2)">😴</button>
+            <button class="fchip" type="button" data-v="4" onclick="_eEmoji('morning',4)">😔</button>
+            <button class="fchip" type="button" data-v="6" onclick="_eEmoji('morning',6)">😐</button>
+            <button class="fchip" type="button" data-v="8" onclick="_eEmoji('morning',8)">🙂</button>
+            <button class="fchip" type="button" data-v="10" onclick="_eEmoji('morning',10)">⚡</button>
+          </div>
         </div>
         <div class="field">
-          <div class="flabel"><span>Как спалось</span><b id="lbl-sleep">5/10</b></div>
-          <input class="slider" id="sl-sleep" type="range" min="1" max="10" value="5">
-          <div class="ticks"><span>не выспалась</span><span>отлично</span></div>
+          <div class="flabel"><span>Как спалось</span></div>
+          <div class="fchips" id="emoji-sleep">
+            <button class="fchip" type="button" data-v="2" onclick="_eEmoji('sleep',2)">😫</button>
+            <button class="fchip" type="button" data-v="4" onclick="_eEmoji('sleep',4)">😕</button>
+            <button class="fchip" type="button" data-v="6" onclick="_eEmoji('sleep',6)">😐</button>
+            <button class="fchip" type="button" data-v="8" onclick="_eEmoji('sleep',8)">😌</button>
+            <button class="fchip" type="button" data-v="10" onclick="_eEmoji('sleep',10)">💤</button>
+          </div>
         </div>
         <div class="ssec pm">🌙 Вечер</div>
         <div class="field">
-          <div class="flabel"><span>Заряд вечером</span><b id="lbl-evening">5/10</b></div>
-          <input class="slider" id="sl-evening" type="range" min="1" max="10" value="5">
-          <div class="ticks"><span>вымотана</span><span>полна сил</span></div>
+          <div class="flabel"><span>Заряд вечером</span></div>
+          <div class="fchips" id="emoji-evening">
+            <button class="fchip" type="button" data-v="2" onclick="_eEmoji('evening',2)">😴</button>
+            <button class="fchip" type="button" data-v="4" onclick="_eEmoji('evening',4)">😔</button>
+            <button class="fchip" type="button" data-v="6" onclick="_eEmoji('evening',6)">😐</button>
+            <button class="fchip" type="button" data-v="8" onclick="_eEmoji('evening',8)">🙂</button>
+            <button class="fchip" type="button" data-v="10" onclick="_eEmoji('evening',10)">✨</button>
+          </div>
         </div>
         <div class="field">
-          <div class="flabel"><span>Настроение</span><b id="lbl-mood">5/10</b></div>
-          <input class="slider" id="sl-mood" type="range" min="1" max="10" value="5">
-          <div class="ticks"><span>плохо</span><span>отлично</span></div>
+          <div class="flabel"><span>Настроение</span></div>
+          <div class="fchips" id="emoji-mood">
+            <button class="fchip" type="button" data-v="2" onclick="_eEmoji('mood',2)">😢</button>
+            <button class="fchip" type="button" data-v="4" onclick="_eEmoji('mood',4)">😕</button>
+            <button class="fchip" type="button" data-v="6" onclick="_eEmoji('mood',6)">😐</button>
+            <button class="fchip" type="button" data-v="8" onclick="_eEmoji('mood',8)">😊</button>
+            <button class="fchip" type="button" data-v="10" onclick="_eEmoji('mood',10)">🥰</button>
+          </div>
         </div>
         <div class="field">
           <div class="fgroup give">↑ Что прибавило энергию</div>
@@ -789,6 +809,13 @@
 var _eGive=[];
 var _eTake=[];
 var _eDateOffset=0;
+var _eEmojiVals={morning:6,sleep:6,evening:6,mood:6};
+function _eClosestEmoji(v){var opts=[2,4,6,8,10];return opts.reduce(function(a,b){return Math.abs(b-v)<Math.abs(a-v)?b:a;});}
+function _eEmoji(field,val){
+  _eEmojiVals[field]=val;
+  var row=document.getElementById('emoji-'+field);
+  if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',parseInt(b.getAttribute('data-v'))===val);});
+}
 var _eReflMoodVal=0;
 function _eReflMood(v){
   _eReflMoodVal=v;
@@ -829,11 +856,8 @@ function _eLoadForOffset(offset){
     if(sec&&sec.nextElementSibling)sec.nextElementSibling.querySelectorAll('.fchip.custom').forEach(function(el){el.remove();});
   });
   if(!raw){
-    // reset sliders to 5
-    ['sl-morning','sl-sleep','sl-evening','sl-mood'].forEach(function(id){
-      var sl=document.getElementById(id);var lb=document.getElementById('lbl-'+id.replace('sl-',''));
-      if(sl){sl.value=5;if(lb)lb.textContent='5/10';}
-    });
+    // reset emoji fields
+    ['morning','sleep','evening','mood'].forEach(function(f){_eEmojiVals[f]=6;_eEmoji(f,6);});
     var noteEl=document.getElementById('energy-note');if(noteEl)noteEl.value='';
     _eReflMoodVal=0;document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){b.classList.remove('on');});
     var rwEl=document.getElementById('refl-win');if(rwEl)rwEl.value='';
@@ -851,11 +875,7 @@ function _eLoadForOffset(offset){
     if(!lbl)return;
     if(def.arr.indexOf(lbl.textContent.trim())>-1)lbl.classList.add('on');
   });
-  var pairs=[['sl-morning','morning'],['sl-sleep','sleep'],['sl-evening','evening'],['sl-mood','mood']];
-  pairs.forEach(function(p){
-    var sl=document.getElementById(p[0]);var lb=document.getElementById('lbl-'+p[0].replace('sl-',''));
-    if(sl&&data[p[1]]!=null){sl.value=data[p[1]];if(lb)lb.textContent=data[p[1]]+'/10';}
-  });
+  ['morning','sleep','evening','mood'].forEach(function(f){if(data[f]!=null)_eEmoji(f,_eClosestEmoji(data[f]));});
   var noteEl=document.getElementById('energy-note');if(noteEl)noteEl.value=data.note||'';
   _eReflMoodVal=0;document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){b.classList.remove('on');});
   if(data.refl_mood)_eReflMood(data.refl_mood);
@@ -890,7 +910,6 @@ function nyushaSaveEnergy(){
   try{if(document.activeElement)document.activeElement.blur();}catch(e){}
   var btn=document.getElementById('save-energy');
   if(btn){btn.textContent='Сохранено ✓';btn.disabled=true;}
-  var val=function(id){var el=document.getElementById(id);return el?parseInt(el.value)||5:5;};
   // also collect custom chips (added via ＋ button)
   var customFromSection=function(sectionClass){
     var out=[];
@@ -903,10 +922,10 @@ function nyushaSaveEnergy(){
   };
   var uniq=function(arr){var s={};return arr.filter(function(v){return s[v]?false:(s[v]=true);});};
   var data={
-    morning:val('sl-morning'),
-    sleep:val('sl-sleep'),
-    evening:val('sl-evening'),
-    mood:val('sl-mood'),
+    morning:_eEmojiVals.morning||6,
+    sleep:_eEmojiVals.sleep||6,
+    evening:_eEmojiVals.evening||6,
+    mood:_eEmojiVals.mood||6,
     note:(document.getElementById('energy-note')||{}).value||'',
     refl_mood:_eReflMoodVal||0,
     refl_win:(document.getElementById('refl-win')||{}).value||'',
@@ -1597,27 +1616,8 @@ function nyushaCreateGoal(){
         if(avgEl)avgEl.textContent='Ø '+avg;
       }
     }
-    // slider labels sync
-    var sliders=[
-      {sl:'sl-morning',lb:'lbl-morning'},
-      {sl:'sl-sleep',lb:'lbl-sleep'},
-      {sl:'sl-evening',lb:'lbl-evening'},
-      {sl:'sl-mood',lb:'lbl-mood'}
-    ];
-    sliders.forEach(function(pair){
-      var sl=document.getElementById(pair.sl);
-      var lb=document.getElementById(pair.lb);
-      if(sl&&lb){
-        sl.addEventListener('input',function(){lb.textContent=sl.value+'/10';});
-        // load saved value
-        var today=localStorage.getItem(todayKey());
-        if(today){
-          var data=JSON.parse(today);
-          var key=pair.sl.replace('sl-','');
-          if(data[key]){sl.value=data[key];lb.textContent=data[key]+'/10';}
-        }
-      }
-    });
+    // load today's emoji values
+    try{var todayData=localStorage.getItem(todayKey());if(todayData){var td=JSON.parse(todayData);['morning','sleep','evening','mood'].forEach(function(f){if(td[f])_eEmoji(f,_eClosestEmoji(td[f]));});}}catch(ex){}
     updateEnergyDisplay();
     window._nyushaUpdateEnergy=updateEnergyDisplay;
   }catch(e){}
