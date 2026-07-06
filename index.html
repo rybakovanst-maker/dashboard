@@ -423,6 +423,18 @@
             <button class="fchip" type="button" data-v="10" onclick="_eEmoji('mood',10)">🥰</button>
           </div>
         </div>
+        <div class="ssec">✨ Рефлексия</div>
+        <div class="field">
+          <div class="flabel"><span>Как прошёл день?</span></div>
+          <div class="fchips" id="refl-mood-row">
+            <button class="fchip" type="button" data-v="1" onclick="_eReflMood(1)">😔</button>
+            <button class="fchip" type="button" data-v="2" onclick="_eReflMood(2)">😐</button>
+            <button class="fchip" type="button" data-v="3" onclick="_eReflMood(3)">🙂</button>
+            <button class="fchip" type="button" data-v="4" onclick="_eReflMood(4)">😊</button>
+            <button class="fchip" type="button" data-v="5" onclick="_eReflMood(5)">💪</button>
+          </div>
+        </div>
+        <input class="note" type="text" id="refl-win" placeholder="Главное за сегодня...">
         <div class="field">
           <div class="fgroup give">↑ Что прибавило энергию</div>
           <div class="fchips">
@@ -445,19 +457,7 @@
             <button class="fchip addf">＋ Добавить</button>
           </div>
         </div>
-        <input class="note" type="text" id="energy-note" placeholder="Заметка: что повлияло на день?">
-        <div class="ssec">✨ Рефлексия</div>
-        <div class="field">
-          <div class="flabel"><span>Как прошёл день?</span></div>
-          <div class="fchips" id="refl-mood-row">
-            <button class="fchip" type="button" data-v="1" onclick="_eReflMood(1)">😔</button>
-            <button class="fchip" type="button" data-v="2" onclick="_eReflMood(2)">😐</button>
-            <button class="fchip" type="button" data-v="3" onclick="_eReflMood(3)">🙂</button>
-            <button class="fchip" type="button" data-v="4" onclick="_eReflMood(4)">😊</button>
-            <button class="fchip" type="button" data-v="5" onclick="_eReflMood(5)">💪</button>
-          </div>
-        </div>
-        <input class="note" type="text" id="refl-win" placeholder="Главное за сегодня...">
+        <input class="note" type="text" id="energy-note" placeholder="Заметка...">
         <button class="savebtn" id="save-energy" type="button" onclick="nyushaSaveEnergy()">Сохранить</button>
       </div>
       <!-- chart removed -->
