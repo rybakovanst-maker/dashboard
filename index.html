@@ -350,17 +350,10 @@
         <div class="st"><b style="color:var(--txt3)">—</b><small>лучший стрик</small></div>
         <div class="st"><b style="color:var(--txt3)">—</b><small>за неделю</small></div>
       </div>
-      <div class="card" id="today-habits">
-        <div class="chead"><b>Привычки сегодня</b></div>
-        <div style="padding:24px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
-          Привычки ещё не добавлены.<br>Нажми «Добавить привычку» ниже.
-        </div>
-        <div id="today-habits-list"></div>
-      </div>
       <div class="card" id="all-habits-card">
-        <div class="chead"><b>Все привычки</b><span class="sub">тапни — изменить</span></div>
-        <div style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
-          Привычек пока нет
+        <div class="chead"><b>Привычки</b><span class="sub">тапни — изменить</span></div>
+        <div id="habits-empty" style="padding:24px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Привычек пока нет.<br>Нажми «Добавить привычку» ниже.
         </div>
       </div>
       <label class="addhabit" for="hsheet"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg> Добавить привычку</label>
@@ -871,78 +864,62 @@ function _hLoad(){try{var r=localStorage.getItem(_HABITS_KEY);return r?JSON.pars
 function _hSave(h){try{localStorage.setItem(_HABITS_KEY,JSON.stringify(h));}catch(e){}}
 function nyushaRenderHabits(){
   var habits=_hLoad();
-  var todayCard=document.getElementById('today-habits');
-  var todayEmpty=todayCard?todayCard.querySelector('[style*="padding:24px"]'):null;
-  var todayList=document.getElementById('today-habits-list');
   var allCard=document.getElementById('all-habits-card');
-  var allEmpty=allCard?allCard.querySelector('[style*="padding:20px"]'):null;
+  var emptyEl=document.getElementById('habits-empty');
+  if(!allCard)return;
+  allCard.querySelectorAll('.habit-row').forEach(function(r){r.remove();});
   if(!habits.length){
-    if(todayEmpty)todayEmpty.style.display='';
-    if(todayList)todayList.innerHTML='';
-    if(allEmpty)allEmpty.style.display='';
+    if(emptyEl)emptyEl.style.display='';
     return;
   }
-  if(todayEmpty)todayEmpty.style.display='none';
-  if(allEmpty)allEmpty.style.display='none';
-  if(todayList){
-    todayList.innerHTML='';
-    for(var i=0;i<habits.length;i++){
-      var h=habits[i];
-      var dk='nyusha_done_'+_hTodayKey()+'_'+i;
+  if(emptyEl)emptyEl.style.display='none';
+  for(var k=0;k<habits.length;k++){
+    (function(idx,hh){
+      var dk='nyusha_done_'+_hTodayKey()+'_'+idx;
       var done=localStorage.getItem(dk)==='1';
-      var div=document.createElement('div');
-      div.className='habit';
-      div.innerHTML='<span class="ico">'+h.icon+'</span>'+
-        '<span class="txt"><b>'+h.name+'</b><small>'+h.freq+'</small></span>'+
-        '<label onclick="nyushaToggleDone(this,\''+dk+'\')" style="width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;font-size:1rem;">'+(done?'✓':'')+'</label>';
-      todayList.appendChild(div);
-    }
-  }
-  if(allCard){
-    var rows=allCard.querySelectorAll('.habit-row');
-    for(var j=0;j<rows.length;j++)rows[j].remove();
-    for(var k=0;k<habits.length;k++){
-      (function(idx,hh){
-        var streak=_hStreak(idx);
-        var dots=_hWeekDots(idx);
-        var row=document.createElement('div');
-        row.className='habit habit-row';
-        row.setAttribute('data-hi',idx);
-        row.style.cssText='cursor:pointer;flex-wrap:wrap;';
-        row.innerHTML='<span class="drag-handle" style="font-size:1.2rem;color:var(--txt3);cursor:grab;padding:0 6px 0 0;touch-action:none;user-select:none;flex:none;">⠿</span>'+
-          '<span class="ico">'+hh.icon+'</span>'+
-          '<span class="txt" style="flex:1;min-width:0;"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>'+
-          (streak>0?'<span class="streak" style="font-size:.8rem;flex:none;">🔥'+streak+'</span>':'<span style="color:var(--txt3);font-size:.8rem;flex:none;">—</span>')+
-          '<div style="width:100%;padding:5px 0 2px 46px;font-size:.72rem;letter-spacing:3px;">'+dots+'</div>';
-        var handle=row.querySelector('.drag-handle');
-        handle.addEventListener('touchstart',function(e){_hDragStart(e,row,allCard,'hi',_hLoad,_hSave,nyushaRenderHabits);},{passive:false});
-        (function(i){row.addEventListener('click',function(e){if(!e.target.classList.contains('drag-handle'))nyushaOpenEdit(i);});})(idx);
-        allCard.appendChild(row);
-      })(k,habits[k]);
-    }
+      var streak=_hStreak(idx);
+      var dots=_hWeekDots(idx);
+      var row=document.createElement('div');
+      row.className='habit habit-row';
+      row.setAttribute('data-hi',idx);
+      row.style.cssText='cursor:pointer;flex-wrap:wrap;';
+      row.innerHTML=
+        '<span class="drag-handle" style="font-size:1.2rem;color:var(--txt3);cursor:grab;padding:0 6px 0 0;touch-action:none;user-select:none;flex:none;">⠿</span>'+
+        '<span class="ico">'+hh.icon+'</span>'+
+        '<span class="txt" style="flex:1;min-width:0;"><b>'+hh.name+'</b><small>'+hh.freq+'</small></span>'+
+        (streak>0?'<span class="streak" style="font-size:.8rem;flex:none;margin-right:6px;">🔥'+streak+'</span>':'')+
+        '<span class="chk" data-dk="'+dk+'" style="width:24px;height:24px;border-radius:50%;border:2px solid '+(done?'var(--green)':'var(--line)')+';display:flex;align-items:center;justify-content:center;flex:none;font-size:.9rem;color:var(--green);">'+(done?'✓':'')+'</span>'+
+        '<div style="width:100%;padding:5px 0 2px 46px;font-size:.72rem;letter-spacing:3px;">'+dots+'</div>';
+      row.querySelector('.chk').addEventListener('click',function(e){
+        e.stopPropagation();
+        nyushaToggleDone(this,this.getAttribute('data-dk'));
+      });
+      var handle=row.querySelector('.drag-handle');
+      handle.addEventListener('touchstart',function(e){_hDragStart(e,row,allCard,'hi',_hLoad,_hSave,nyushaRenderHabits);},{passive:false});
+      (function(i){row.addEventListener('click',function(e){
+        if(!e.target.classList.contains('drag-handle')&&!e.target.classList.contains('chk'))nyushaOpenEdit(i);
+      });})(idx);
+      allCard.appendChild(row);
+    })(k,habits[k]);
   }
   // update summary stats
-  var st=document.querySelectorAll('#s-habits .stats3 .st b');
-  if(st.length>=3&&habits.length){
+  var st=document.querySelectorAll('#s-today .stats3 .st b');
+  if(st.length>=3){
     var todayDone=0;
     for(var m=0;m<habits.length;m++){if(localStorage.getItem('nyusha_done_'+_hTodayKey()+'_'+m)==='1')todayDone++;}
     var bestStreak=0;
     for(var n=0;n<habits.length;n++){var s=_hStreak(n);if(s>bestStreak)bestStreak=s;}
     var weekTotal=0;
     for(var p=0;p<habits.length;p++){for(var q=0;q<7;q++){if(localStorage.getItem(_hDoneKeyOff(q,p))==='1')weekTotal++;}}
-    var weekPct=Math.round(weekTotal/(habits.length*7)*100);
+    var weekPct=habits.length?Math.round(weekTotal/(habits.length*7)*100):0;
     st[0].innerHTML='<span class="g">'+todayDone+'/'+habits.length+'</span>';
     st[1].innerHTML=bestStreak>0?'🔥'+bestStreak:'—';
     st[2].innerHTML=weekPct+'%';
     st[1].style.color=''; st[2].style.color='';
-    // hide "no activity" placeholder
-    var ph=document.querySelector('#s-habits .card:not(#all-habits-card) [style*="padding:24px"]');
-    if(ph&&todayDone>0)ph.parentElement.style.display='none';
   }
 }
 function nyushaToggleDone(el,key){
-  var done=el.textContent!=='✓';
-  el.textContent=done?'✓':'';
+  var done=localStorage.getItem(key)!=='1';
   try{localStorage.setItem(key,done?'1':'0');}catch(e){}
   nyushaRenderHabits();
 }
