@@ -422,6 +422,18 @@
           </div>
         </div>
         <input class="note" type="text" id="energy-note" placeholder="Заметка: что повлияло на день?">
+        <div class="ssec">✨ Рефлексия</div>
+        <div class="field">
+          <div class="flabel"><span>Как прошёл день?</span></div>
+          <div class="fchips" id="refl-mood-row">
+            <button class="fchip" type="button" data-v="1" onclick="_eReflMood(1)">😔</button>
+            <button class="fchip" type="button" data-v="2" onclick="_eReflMood(2)">😐</button>
+            <button class="fchip" type="button" data-v="3" onclick="_eReflMood(3)">🙂</button>
+            <button class="fchip" type="button" data-v="4" onclick="_eReflMood(4)">😊</button>
+            <button class="fchip" type="button" data-v="5" onclick="_eReflMood(5)">💪</button>
+          </div>
+        </div>
+        <input class="note" type="text" id="refl-win" placeholder="Главное за сегодня...">
         <button class="savebtn" id="save-energy" type="button" onclick="nyushaSaveEnergy()">Сохранить</button>
       </div>
       <!-- chart removed -->
@@ -691,6 +703,13 @@
 var _eGive=[];
 var _eTake=[];
 var _eDateOffset=0;
+var _eReflMoodVal=0;
+function _eReflMood(v){
+  _eReflMoodVal=v;
+  document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){
+    b.classList.toggle('on',parseInt(b.getAttribute('data-v'))===v);
+  });
+}
 var _MONTHS_RU=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 var _DAYS_RU=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
 function _eOffsetDate(offset){var d=new Date();d.setDate(d.getDate()+offset);return d;}
@@ -730,6 +749,8 @@ function _eLoadForOffset(offset){
       if(sl){sl.value=5;if(lb)lb.textContent='5/10';}
     });
     var noteEl=document.getElementById('energy-note');if(noteEl)noteEl.value='';
+    _eReflMoodVal=0;document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){b.classList.remove('on');});
+    var rwEl=document.getElementById('refl-win');if(rwEl)rwEl.value='';
     return;
   }
   var data;try{data=JSON.parse(raw);}catch(e){return;}
@@ -750,6 +771,9 @@ function _eLoadForOffset(offset){
     if(sl&&data[p[1]]!=null){sl.value=data[p[1]];if(lb)lb.textContent=data[p[1]]+'/10';}
   });
   var noteEl=document.getElementById('energy-note');if(noteEl)noteEl.value=data.note||'';
+  _eReflMoodVal=0;document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){b.classList.remove('on');});
+  if(data.refl_mood)_eReflMood(data.refl_mood);
+  var rwEl=document.getElementById('refl-win');if(rwEl)rwEl.value=data.refl_win||'';
   // restore custom chips
   var restoreCustom=function(sectionClass,arr,stdIds){
     var section=document.querySelector('.fgroup.'+sectionClass);if(!section)return;
@@ -798,6 +822,8 @@ function nyushaSaveEnergy(){
     evening:val('sl-evening'),
     mood:val('sl-mood'),
     note:(document.getElementById('energy-note')||{}).value||'',
+    refl_mood:_eReflMoodVal||0,
+    refl_win:(document.getElementById('refl-win')||{}).value||'',
     give:uniq(_eGive.slice().concat(customFromSection('give'))),
     take:uniq(_eTake.slice().concat(customFromSection('take')))
   };
@@ -1219,6 +1245,35 @@ function nyushaCreateGoal(){
       if(avgM>0&&avgSleep>0){
         var corr=avgSleep>7&&avgM>7?'Хороший сон — высокая утренняя энергия ✓':avgSleep<5&&avgM<5?'Сон влияет на заряд: и то, и другое низкое':'';
         if(corr)insights.push('💡 '+corr);
+      }
+      // habits ↔ evening energy correlation
+      var habits=typeof _hLoad==='function'?_hLoad():[];
+      if(habits.length){
+        var now2=new Date();
+        var daysExt=[];
+        for(var di=0;di<30;di++){
+          var d3=new Date(now2);d3.setDate(now2.getDate()-di);
+          var dk2=d3.getFullYear()+'-'+(d3.getMonth()+1)+'-'+d3.getDate();
+          var raw2=localStorage.getItem(ENERGY_KEY+dk2);
+          if(raw2)try{var obj=JSON.parse(raw2);obj._dk=dk2;obj._i=di;daysExt.push(obj);}catch(e){}
+        }
+        if(daysExt.length>=4){
+          habits.forEach(function(h,idx){
+            var withH=[],withoutH=[];
+            daysExt.forEach(function(d4){
+              if(!(d4.evening>0))return;
+              var done=localStorage.getItem('nyusha_done_'+d4._dk+'_'+idx)==='1';
+              if(done)withH.push(d4.evening);else withoutH.push(d4.evening);
+            });
+            if(withH.length>=2&&withoutH.length>=2){
+              var avgWith=avg(withH),avgWithout=avg(withoutH),diff=avgWith-avgWithout;
+              if(Math.abs(diff)>=0.8){
+                var sign=diff>0?'+':'';
+                insights.push(h.icon+' '+h.name+': вечером <b>'+sign+diff.toFixed(1)+' б</b> в дни с привычкой');
+              }
+            }
+          });
+        }
       }
       if(sub)sub.textContent='за '+days.length+' дней';
       body.innerHTML=insights.map(function(t){return '<div style="padding:5px 0;font-size:.84rem;border-bottom:1px solid var(--line);">'+t+'</div>';}).join('')||body.innerHTML;
