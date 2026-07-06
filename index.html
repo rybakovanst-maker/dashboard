@@ -475,6 +475,11 @@
 
       <div class="card">
         <div class="chead"><b>🍽 Питание</b><span class="sub">самочувствие после еды</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 10px;">
+          <button id="food-date-prev" type="button" onclick="nyushaBodyDateNav(-1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+          <span id="food-date-label" style="font-size:.88rem;font-weight:600;color:var(--txt2);">Сегодня</span>
+          <button id="food-date-next" type="button" onclick="nyushaBodyDateNav(1)" disabled style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.4;">›</button>
+        </div>
 
         <div class="ssec">🌅 Завтрак</div>
         <input class="note" type="text" id="note-breakfast" placeholder="Что ела..." onblur="_bodyNoteBlur('breakfast',this)">
@@ -514,6 +519,14 @@
           <button class="fchip" type="button" data-v="light" onclick="_bodyFeel('dinner','light')">😌 Лёгкость</button>
           <button class="fchip" type="button" data-v="neutral" onclick="_bodyFeel('dinner','neutral')">😐 Нейтрально</button>
           <button class="fchip" type="button" data-v="heavy" onclick="_bodyFeel('dinner','heavy')">😣 Тяжесть</button>
+        </div>
+        <button id="food-save-btn" class="savebtn" type="button" onclick="nyushaSaveFood()">Сохранить питание</button>
+      </div>
+
+      <div class="card">
+        <div class="chead"><b>🔍 Анализ питания</b></div>
+        <div id="food-analysis-body" style="padding:16px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Веди дневник питания 2+ дня —<br>появятся первые закономерности.
         </div>
       </div>
     </section>
@@ -930,13 +943,56 @@ function nyushaSaveEnergy(){
 var _WEIGHT_KEY_PFX='nyusha_weight_';
 var _FOOD_KEY_PFX='nyusha_food_';
 var _BODY_GOAL=82;
-function _bodyTodayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+var _bodyDateOffset=0;
+function _bodyOffsetKey(offset){var d=new Date();d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function _bodyUpdateDateLabel(){
+  var d=new Date();d.setDate(d.getDate()+_bodyDateOffset);
+  var months=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  var days=['вс','пн','вт','ср','чт','пт','сб'];
+  var lbl=document.getElementById('food-date-label');
+  if(lbl)lbl.textContent=_bodyDateOffset===0?'Сегодня':days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()];
+  var nxt=document.getElementById('food-date-next');
+  if(nxt){nxt.disabled=_bodyDateOffset>=0;nxt.style.opacity=_bodyDateOffset>=0?'.4':'1';}
+}
+function nyushaBodyDateNav(dir){
+  var n=_bodyDateOffset+dir;if(n>0)return;
+  _bodyDateOffset=n;_bodyUpdateDateLabel();_bodyLoadFood(_bodyDateOffset);
+}
+function _bodyLoadFood(offset){
+  var key=_bodyOffsetKey(offset);
+  var raw=localStorage.getItem(_FOOD_KEY_PFX+key);
+  var data=raw?JSON.parse(raw):{};
+  ['breakfast','snack1','lunch','snack2','dinner'].forEach(function(meal){
+    var d=data[meal]||{};
+    var noteEl=document.getElementById('note-'+meal);if(noteEl)noteEl.value=d.note||'';
+    var row=document.getElementById('feel-'+meal);
+    if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===(d.feel||''));});
+  });
+  nyushaAnalyzeFood();
+}
+function nyushaSaveFood(){
+  var key=_bodyOffsetKey(_bodyDateOffset);
+  var raw=localStorage.getItem(_FOOD_KEY_PFX+key);
+  var data=raw?JSON.parse(raw):{};
+  ['breakfast','snack1','lunch','snack2','dinner'].forEach(function(meal){
+    if(!data[meal])data[meal]={};
+    var noteEl=document.getElementById('note-'+meal);if(noteEl)data[meal].note=noteEl.value;
+    var row=document.getElementById('feel-'+meal);
+    if(row){var a=row.querySelector('.fchip.on');if(a)data[meal].feel=a.getAttribute('data-v');}
+  });
+  localStorage.setItem(_FOOD_KEY_PFX+key,JSON.stringify(data));
+  var btn=document.getElementById('food-save-btn');
+  if(btn){btn.textContent='Сохранено ✓';setTimeout(function(){btn.textContent='Сохранить питание';},1200);}
+  nyushaAnalyzeFood();
+  try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
+}
 function nyushaSaveWeight(){
   var inp=document.getElementById('weight-input');
   if(!inp||!inp.value)return;
   var w=parseFloat(inp.value);
   if(isNaN(w)||w<30||w>300)return;
-  localStorage.setItem(_WEIGHT_KEY_PFX+_bodyTodayKey(),JSON.stringify({weight:w}));
+  var today=_bodyOffsetKey(0);
+  localStorage.setItem(_WEIGHT_KEY_PFX+today,JSON.stringify({weight:w}));
   nyushaUpdateWeightStats();
   var btn=document.getElementById('weight-save-btn');
   if(btn){btn.textContent='Сохранено ✓';setTimeout(function(){btn.textContent='Сохранить';},1200);}
@@ -950,7 +1006,7 @@ function nyushaUpdateWeightStats(){
     }
   }
   records.sort(function(a,b){return a.date>b.date?1:a.date<b.date?-1:0;});
-  var today=_bodyTodayKey();
+  var today=_bodyOffsetKey(0);
   var todayRec=null;for(var i=0;i<records.length;i++){if(records[i].date===today){todayRec=records[i];break;}}
   var current=todayRec?todayRec.w:(records.length?records[records.length-1].w:null);
   var first=records.length?records[0].w:null;
@@ -959,39 +1015,75 @@ function nyushaUpdateWeightStats(){
   var inp=document.getElementById('weight-input');if(inp&&!inp.value&&current)inp.value=current;
   var elC=document.getElementById('wst-current');if(elC)elC.textContent=current?current+' кг':'—';
   var elL=document.getElementById('wst-lost');if(elL)elL.textContent=lost>0.05?'-'+lost.toFixed(1)+' кг':lost<-0.05?'+'+Math.abs(lost).toFixed(1)+' кг':'—';
-  var elT=document.getElementById('wst-left');if(elT)elT.textContent=left!==null?(left>0?left.toFixed(1)+' кг':'Цель!'):'—';
+  var elT=document.getElementById('wst-left');if(elT)elT.textContent=left!==null?(left>0?left.toFixed(1)+' кг':'Цель! 🎉'):'—';
   var pct=0;if(first&&current&&first>_BODY_GOAL)pct=Math.min(100,Math.max(0,(first-current)/(first-_BODY_GOAL)*100));
   var elP=document.getElementById('wst-pct');if(elP)elP.textContent=Math.round(pct)+'%';
   var bar=document.getElementById('weight-bar');if(bar)bar.style.width=pct+'%';
 }
 function _bodyFeel(meal,val){
-  var today=_bodyTodayKey();
-  var raw=localStorage.getItem(_FOOD_KEY_PFX+today);
+  var key=_bodyOffsetKey(_bodyDateOffset);
+  var raw=localStorage.getItem(_FOOD_KEY_PFX+key);
   var data=raw?JSON.parse(raw):{};
   if(!data[meal])data[meal]={};
   data[meal].feel=val;
-  localStorage.setItem(_FOOD_KEY_PFX+today,JSON.stringify(data));
+  localStorage.setItem(_FOOD_KEY_PFX+key,JSON.stringify(data));
   var row=document.getElementById('feel-'+meal);
   if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===val);});
 }
 function _bodyNoteBlur(meal,el){
-  var today=_bodyTodayKey();
-  var raw=localStorage.getItem(_FOOD_KEY_PFX+today);
+  var key=_bodyOffsetKey(_bodyDateOffset);
+  var raw=localStorage.getItem(_FOOD_KEY_PFX+key);
   var data=raw?JSON.parse(raw):{};
   if(!data[meal])data[meal]={};
   data[meal].note=el.value;
-  localStorage.setItem(_FOOD_KEY_PFX+today,JSON.stringify(data));
+  localStorage.setItem(_FOOD_KEY_PFX+key,JSON.stringify(data));
+}
+function nyushaAnalyzeFood(){
+  var body=document.getElementById('food-analysis-body');if(!body)return;
+  var mealNames={breakfast:'Завтрак',snack1:'Перекус 1',lunch:'Обед',snack2:'Перекус 2',dinner:'Ужин'};
+  var mealKeys=['breakfast','snack1','lunch','snack2','dinner'];
+  var heavy={},light={},total={};
+  mealKeys.forEach(function(m){heavy[m]=0;light[m]=0;total[m]=0;});
+  var filledDays=0,energyCorr=[];
+  for(var i=0;i<14;i++){
+    var d=new Date();d.setDate(d.getDate()-i);
+    var dk=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    var raw=localStorage.getItem(_FOOD_KEY_PFX+dk);
+    if(!raw)continue;
+    filledDays++;
+    var data=JSON.parse(raw);
+    mealKeys.forEach(function(m){
+      if(!data[m])return;total[m]++;
+      if(data[m].feel==='heavy')heavy[m]++;
+      if(data[m].feel==='light')light[m]++;
+    });
+    if(i>0&&data.dinner&&data.dinner.feel){
+      var d2=new Date();d2.setDate(d2.getDate()-(i-1));
+      var ndk=d2.getFullYear()+'-'+(d2.getMonth()+1)+'-'+d2.getDate();
+      var er=localStorage.getItem('nyusha_energy_'+ndk);
+      if(er){try{var ed=JSON.parse(er);if(ed.morning>0)energyCorr.push({feel:data.dinner.feel,morning:ed.morning});}catch(e){}}
+    }
+  }
+  if(filledDays<2){body.innerHTML='<div style="padding:16px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">Веди дневник питания 2+ дня —<br>появятся первые закономерности.</div>';return;}
+  var insights=[];
+  mealKeys.forEach(function(m){
+    if(total[m]>=2&&heavy[m]/total[m]>0.4)insights.push('😣 '+mealNames[m]+' чаще вызывает тяжесть ('+heavy[m]+' из '+total[m]+' дней)');
+  });
+  mealKeys.forEach(function(m){
+    if(total[m]>=2&&light[m]/total[m]>0.5)insights.push('😌 '+mealNames[m]+' обычно лёгкий ('+light[m]+' из '+total[m]+' дней)');
+  });
+  if(energyCorr.length>=2){
+    var avg=function(arr){return arr.length?arr.reduce(function(a,b){return a+b;},0)/arr.length:0;};
+    var hm=energyCorr.filter(function(e){return e.feel==='heavy';}).map(function(e){return e.morning;});
+    var lm=energyCorr.filter(function(e){return e.feel==='light';}).map(function(e){return e.morning;});
+    if(hm.length>=1&&lm.length>=1){var diff=avg(lm)-avg(hm);if(diff>=0.8)insights.push('🌅 После лёгкого ужина утром на '+diff.toFixed(1)+' балла больше энергии');}
+  }
+  if(!insights.length)insights.push('Продолжай вести дневник — закономерности скоро появятся ✨');
+  body.innerHTML=insights.map(function(t){return '<div style="padding:6px 0;font-size:.84rem;border-bottom:1px solid var(--line);">'+t+'</div>';}).join('');
 }
 function nyushaInitBody(){
   nyushaUpdateWeightStats();
-  var today=_bodyTodayKey();
-  var raw=localStorage.getItem(_FOOD_KEY_PFX+today);
-  var data=raw?JSON.parse(raw):{};
-  ['breakfast','snack1','lunch','snack2','dinner'].forEach(function(meal){
-    var d=data[meal]||{};
-    var noteEl=document.getElementById('note-'+meal);if(noteEl&&d.note)noteEl.value=d.note;
-    if(d.feel){var row=document.getElementById('feel-'+meal);if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===d.feel);});}
-  });
+  _bodyDateOffset=0;_bodyUpdateDateLabel();_bodyLoadFood(0);
 }
 // === END BODY ===
 
