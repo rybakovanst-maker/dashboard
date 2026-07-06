@@ -353,6 +353,11 @@
       </div>
       <div class="card" id="all-habits-card">
         <div class="chead"><b>Привычки</b><span class="sub">тапни — изменить</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 8px;">
+          <button id="habits-date-prev" type="button" onclick="nyushaHabitDateNav(-1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+          <span id="habits-date-label" style="font-size:.82rem;font-weight:600;color:var(--txt2);">Сегодня</span>
+          <button id="habits-date-next" type="button" onclick="nyushaHabitDateNav(1)" disabled style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.4;">›</button>
+        </div>
         <div id="habits-empty" style="padding:24px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
           Привычек пока нет.<br>Нажми «Добавить привычку» ниже.
         </div>
@@ -1111,12 +1116,36 @@ function nyushaInitBody(){
 var _HABITS_KEY='nyusha_habits';
 var _ICONS=['💧','🧘','🏋️','📖','🚶','🌅','💊','🤸','✨'];
 var _hEditIdx=-1;
+var _hDateOffset=0;
+function _hOffsetKey(offset){var d=new Date();d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function _hUpdateDateLabel(){
+  var d=new Date();d.setDate(d.getDate()+_hDateOffset);
+  var months=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  var days=['вс','пн','вт','ср','чт','пт','сб'];
+  var lbl=document.getElementById('habits-date-label');
+  if(lbl)lbl.textContent=_hDateOffset===0?'Сегодня':days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()];
+  var nxt=document.getElementById('habits-date-next');
+  if(nxt){nxt.disabled=_hDateOffset>=0;nxt.style.opacity=_hDateOffset>=0?'.4':'1';}
+}
+function nyushaHabitDateNav(dir){
+  var n=_hDateOffset+dir;if(n>0)return;
+  _hDateOffset=n;_hUpdateDateLabel();nyushaRenderHabits();
+}
 function _hTodayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function _hDayKey(daysBack){var d=new Date();d.setDate(d.getDate()-daysBack);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-function _hDoneKeyOff(daysBack,idx){return'nyusha_done_'+_hDayKey(daysBack)+'_'+idx;}
-function _hStreak(idx){var s=0;for(var i=0;i<365;i++){if(localStorage.getItem(_hDoneKeyOff(i,idx))==='1')s++;else break;}return s;}
-function _hWeekDots(idx){var dots='';for(var i=6;i>=0;i--){dots+=localStorage.getItem(_hDoneKeyOff(i,idx))==='1'?'<span style="color:var(--green)">●</span>':'<span style="color:var(--line)">●</span>';}return dots;}
-function _hLoad(){try{var r=localStorage.getItem(_HABITS_KEY);return r?JSON.parse(r):[];}catch(e){return[];}}
+function _hDoneKeyOff(daysBack,id){return'nyusha_done_'+_hDayKey(daysBack)+'_'+id;}
+function _hStreak(id){var s=0;for(var i=0;i<365;i++){if(localStorage.getItem(_hDoneKeyOff(i,id))==='1')s++;else break;}return s;}
+function _hWeekDots(id){var dots='';for(var i=6;i>=0;i--){dots+=localStorage.getItem(_hDoneKeyOff(i,id))==='1'?'<span style="color:var(--green)">●</span>':'<span style="color:var(--line)">●</span>';}return dots;}
+function _hLoad(){
+  try{
+    var r=localStorage.getItem(_HABITS_KEY);
+    var habits=r?JSON.parse(r):[];
+    var changed=false;
+    habits.forEach(function(h,i){if(!h.id){h.id='h'+(Date.now()+i);changed=true;}});
+    if(changed)localStorage.setItem(_HABITS_KEY,JSON.stringify(habits));
+    return habits;
+  }catch(e){return[];}
+}
 function _hSave(h){try{localStorage.setItem(_HABITS_KEY,JSON.stringify(h));}catch(e){}}
 function nyushaRenderHabits(){
   var habits=_hLoad();
@@ -1129,12 +1158,14 @@ function nyushaRenderHabits(){
     return;
   }
   if(emptyEl)emptyEl.style.display='none';
+  var curDateKey=_hOffsetKey(_hDateOffset);
   for(var k=0;k<habits.length;k++){
     (function(idx,hh){
-      var dk='nyusha_done_'+_hTodayKey()+'_'+idx;
+      var hid=hh.id||idx;
+      var dk='nyusha_done_'+curDateKey+'_'+hid;
       var done=localStorage.getItem(dk)==='1';
-      var streak=_hStreak(idx);
-      var dots=_hWeekDots(idx);
+      var streak=_hStreak(hid);
+      var dots=_hWeekDots(hid);
       var row=document.createElement('div');
       row.className='habit habit-row';
       row.setAttribute('data-hi',idx);
@@ -1162,11 +1193,11 @@ function nyushaRenderHabits(){
   var st=document.querySelectorAll('#s-today .stats3 .st b');
   if(st.length>=3){
     var todayDone=0;
-    for(var m=0;m<habits.length;m++){if(localStorage.getItem('nyusha_done_'+_hTodayKey()+'_'+m)==='1')todayDone++;}
+    for(var m=0;m<habits.length;m++){var hid2=habits[m].id||m;if(localStorage.getItem('nyusha_done_'+_hTodayKey()+'_'+hid2)==='1')todayDone++;}
     var bestStreak=0;
-    for(var n=0;n<habits.length;n++){var s=_hStreak(n);if(s>bestStreak)bestStreak=s;}
+    for(var n=0;n<habits.length;n++){var hid3=habits[n].id||n;var s=_hStreak(hid3);if(s>bestStreak)bestStreak=s;}
     var weekTotal=0;
-    for(var p=0;p<habits.length;p++){for(var q=0;q<7;q++){if(localStorage.getItem(_hDoneKeyOff(q,p))==='1')weekTotal++;}}
+    for(var p=0;p<habits.length;p++){var hid4=habits[p].id||p;for(var q=0;q<7;q++){if(localStorage.getItem(_hDoneKeyOff(q,hid4))==='1')weekTotal++;}}
     var weekPct=habits.length?Math.round(weekTotal/(habits.length*7)*100):0;
     st[0].innerHTML='<span class="g">'+todayDone+'/'+habits.length+'</span>';
     st[1].innerHTML=bestStreak>0?'🔥'+bestStreak:'—';
@@ -1230,9 +1261,10 @@ function nyushaCreateHabit(){
   var freq=_hGetFreq();
   var habits=_hLoad();
   if(_hEditIdx>=0&&habits[_hEditIdx]){
-    habits[_hEditIdx]={name:name,icon:_ICONS[iconIdx]||'✨',freq:freq};
+    var existId=habits[_hEditIdx].id;
+    habits[_hEditIdx]={name:name,icon:_ICONS[iconIdx]||'✨',freq:freq,id:existId||('h'+Date.now())};
   }else{
-    habits.push({name:name,icon:_ICONS[iconIdx]||'✨',freq:freq});
+    habits.push({name:name,icon:_ICONS[iconIdx]||'✨',freq:freq,id:'h'+Date.now()});
   }
   _hEditIdx=-1;
   _hSave(habits);
@@ -1374,6 +1406,7 @@ function nyushaCreateGoal(){
     tg.setBackgroundColor('#09080F');
     try{tg.MainButton.hide();}catch(e){}
   }
+  _hUpdateDateLabel();
   nyushaRenderHabits();
   nyushaRenderGoals();
   nyushaInitBody();
