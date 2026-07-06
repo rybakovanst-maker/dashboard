@@ -531,7 +531,11 @@
     <div class="sheet">
       <div class="grip"></div>
       <div class="sheet-h"><b>Замер дня</b><label class="sheet-x" for="sheet">✕</label></div>
-      <div class="sheet-sub">Воскресенье, 5 июля</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;">
+        <button id="date-prev" type="button" onclick="nyushaDateNav(-1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+        <span id="date-label" style="font-size:.88rem;font-weight:600;color:var(--txt2);"></span>
+        <button id="date-next" type="button" onclick="nyushaDateNav(1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
+      </div>
       <div class="ssec">🌅 Утро</div>
       <div class="field">
         <div class="flabel"><span>Заряд с утра</span><b id="lbl-morning">5/10</b></div>
@@ -736,13 +740,92 @@
 // === ENERGY (global scope so onclick works) ===
 var _eGive=[];
 var _eTake=[];
+var _eDateOffset=0;
+var _MONTHS_RU=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var _DAYS_RU=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+function _eOffsetDate(offset){var d=new Date();d.setDate(d.getDate()+offset);return d;}
+function _eKeyForOffset(offset){var d=_eOffsetDate(offset);return'nyusha_energy_'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function _eUpdateDateLabel(){
+  var d=_eOffsetDate(_eDateOffset);
+  var label=_DAYS_RU[d.getDay()]+', '+d.getDate()+' '+_MONTHS_RU[d.getMonth()];
+  var el=document.getElementById('date-label');
+  if(el)el.textContent=label;
+  var nextBtn=document.getElementById('date-next');
+  if(nextBtn){nextBtn.style.opacity=_eDateOffset>=0?'.3':'1';nextBtn.disabled=_eDateOffset>=0;}
+}
+function nyushaDateNav(dir){
+  var newOffset=_eDateOffset+dir;
+  if(newOffset>0)return;
+  _eDateOffset=newOffset;
+  _eUpdateDateLabel();
+  _eLoadForOffset(_eDateOffset);
+}
+function _eLoadForOffset(offset){
+  var raw=localStorage.getItem(_eKeyForOffset(offset));
+  // reset chips visual
+  ['fg1','fg2','fg3','fg4','fg5','ft1','ft2','ft3','ft4','ft5'].forEach(function(id){
+    var lbl=document.querySelector('label[for="'+id+'"]');
+    if(lbl)lbl.classList.remove('on');
+  });
+  _eGive.length=0;_eTake.length=0;
+  // remove custom chips
+  ['give','take'].forEach(function(cls){
+    var sec=document.querySelector('.fgroup.'+cls);
+    if(sec&&sec.nextElementSibling)sec.nextElementSibling.querySelectorAll('.fchip.custom').forEach(function(el){el.remove();});
+  });
+  if(!raw){
+    // reset sliders to 5
+    ['sl-morning','sl-sleep','sl-evening','sl-mood'].forEach(function(id){
+      var sl=document.getElementById(id);var lb=document.getElementById('lbl-'+id.replace('sl-',''));
+      if(sl){sl.value=5;if(lb)lb.textContent='5/10';}
+    });
+    var noteEl=document.getElementById('energy-note');if(noteEl)noteEl.value='';
+    return;
+  }
+  var data;try{data=JSON.parse(raw);}catch(e){return;}
+  (data.give||[]).forEach(function(v){_eGive.push(v);});
+  (data.take||[]).forEach(function(v){_eTake.push(v);});
+  var chipDefs=[
+    {id:'fg1',arr:_eGive},{id:'fg2',arr:_eGive},{id:'fg3',arr:_eGive},{id:'fg4',arr:_eGive},{id:'fg5',arr:_eGive},
+    {id:'ft1',arr:_eTake},{id:'ft2',arr:_eTake},{id:'ft3',arr:_eTake},{id:'ft4',arr:_eTake},{id:'ft5',arr:_eTake}
+  ];
+  chipDefs.forEach(function(def){
+    var lbl=document.querySelector('label[for="'+def.id+'"]');
+    if(!lbl)return;
+    if(def.arr.indexOf(lbl.textContent.trim())>-1)lbl.classList.add('on');
+  });
+  var pairs=[['sl-morning','morning'],['sl-sleep','sleep'],['sl-evening','evening'],['sl-mood','mood']];
+  pairs.forEach(function(p){
+    var sl=document.getElementById(p[0]);var lb=document.getElementById('lbl-'+p[0].replace('sl-',''));
+    if(sl&&data[p[1]]!=null){sl.value=data[p[1]];if(lb)lb.textContent=data[p[1]]+'/10';}
+  });
+  var noteEl=document.getElementById('energy-note');if(noteEl)noteEl.value=data.note||'';
+  // restore custom chips
+  var restoreCustom=function(sectionClass,arr,stdIds){
+    var section=document.querySelector('.fgroup.'+sectionClass);if(!section)return;
+    var wrap=section.nextElementSibling;if(!wrap)return;
+    var stdTexts=[];stdIds.forEach(function(id){var l=document.querySelector('label[for="'+id+'"]');if(l)stdTexts.push(l.textContent.trim());});
+    var addBtn=wrap.querySelector('.addf');
+    arr.forEach(function(txt){
+      if(stdTexts.indexOf(txt)>-1)return;
+      var chip=document.createElement('span');chip.className='fchip on custom';
+      var t=document.createElement('span');t.className='ctext';t.textContent=txt;
+      var x=document.createElement('span');x.className='cdel';x.textContent='✕';
+      t.addEventListener('click',function(){chip.classList.toggle('on');});
+      x.addEventListener('click',function(e){e.stopPropagation();chip.remove();});
+      chip.appendChild(t);chip.appendChild(x);
+      if(addBtn)wrap.insertBefore(chip,addBtn);else wrap.appendChild(chip);
+    });
+  };
+  restoreCustom('give',data.give||[],['fg1','fg2','fg3','fg4','fg5']);
+  restoreCustom('take',data.take||[],['ft1','ft2','ft3','ft4','ft5']);
+}
 function _eChipToggle(label,arr){
   var txt=label.textContent.trim();
   var idx=arr.indexOf(txt);
   if(idx>-1){arr.splice(idx,1);label.classList.remove('on');}
   else{arr.push(txt);label.classList.add('on');}
 }
-function _eTodayKey(){var d=new Date();return'nyusha_energy_'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
 function nyushaSaveEnergy(){
   try{if(document.activeElement)document.activeElement.blur();}catch(e){}
   var btn=document.getElementById('save-energy');
@@ -767,7 +850,7 @@ function nyushaSaveEnergy(){
     give:_eGive.slice().concat(customFromSection('give')),
     take:_eTake.slice().concat(customFromSection('take'))
   };
-  try{localStorage.setItem(_eTodayKey(),JSON.stringify(data));}catch(e){}
+  try{localStorage.setItem(_eKeyForOffset(_eDateOffset),JSON.stringify(data));}catch(e){}
   setTimeout(function(){
     var sh=document.getElementById('sheet');
     if(sh)sh.checked=false;
@@ -788,60 +871,13 @@ function nyushaSaveEnergy(){
       if(lbl){lbl.addEventListener('click',function(e){e.preventDefault();_eChipToggle(lbl,def.arr);});}
     })(chipDefs[i]);
   }
-  // load saved state when sheet opens
+  // load saved state when sheet opens — resets to today and delegates to _eLoadForOffset
   var sh=document.getElementById('sheet');
   if(sh)sh.addEventListener('change',function(){
     if(!sh.checked)return;
-    var raw=localStorage.getItem(_eTodayKey());
-    if(!raw)return;
-    var data;try{data=JSON.parse(raw);}catch(e){return;}
-    // reset arrays
-    _eGive.length=0;_eTake.length=0;
-    (data.give||[]).forEach(function(v){_eGive.push(v);});
-    (data.take||[]).forEach(function(v){_eTake.push(v);});
-    // sync visual for standard chips
-    chipDefs.forEach(function(def){
-      var lbl=document.querySelector('label[for="'+def.id+'"]');
-      if(!lbl)return;
-      var txt=lbl.textContent.trim();
-      if(def.arr.indexOf(txt)>-1)lbl.classList.add('on');
-      else lbl.classList.remove('on');
-    });
-    // restore custom chips
-    var restoreCustom=function(sectionClass,arr,stdIds){
-      var section=document.querySelector('.fgroup.'+sectionClass);
-      if(!section)return;
-      var wrap=section.nextElementSibling;
-      if(!wrap)return;
-      // remove old custom chips
-      wrap.querySelectorAll('.fchip.custom').forEach(function(el){el.remove();});
-      // standard chip texts
-      var stdTexts=[];
-      stdIds.forEach(function(id){var l=document.querySelector('label[for="'+id+'"]');if(l)stdTexts.push(l.textContent.trim());});
-      var addBtn=wrap.querySelector('.addf');
-      arr.forEach(function(txt){
-        if(stdTexts.indexOf(txt)>-1)return; // skip standard ones
-        var chip=document.createElement('span');
-        chip.className='fchip on custom';
-        var t=document.createElement('span');t.className='ctext';t.textContent=txt;
-        var x=document.createElement('span');x.className='cdel';x.textContent='✕';
-        t.addEventListener('click',function(){chip.classList.toggle('on');});
-        x.addEventListener('click',function(e){e.stopPropagation();chip.remove();});
-        chip.appendChild(t);chip.appendChild(x);
-        if(addBtn)wrap.insertBefore(chip,addBtn);else wrap.appendChild(chip);
-      });
-    };
-    restoreCustom('give',data.give||[],['fg1','fg2','fg3','fg4','fg5']);
-    restoreCustom('take',data.take||[],['ft1','ft2','ft3','ft4','ft5']);
-    // restore sliders
-    var pairs=[['sl-morning','morning'],['sl-sleep','sleep'],['sl-evening','evening'],['sl-mood','mood']];
-    pairs.forEach(function(p){
-      var sl=document.getElementById(p[0]);
-      var lb=document.getElementById('lbl-'+p[0].replace('sl-',''));
-      if(sl&&data[p[1]]!=null){sl.value=data[p[1]];if(lb)lb.textContent=data[p[1]]+'/10';}
-    });
-    var noteEl=document.getElementById('energy-note');
-    if(noteEl)noteEl.value=data.note||'';
+    _eDateOffset=0;
+    _eUpdateDateLabel();
+    _eLoadForOffset(0);
   });
 })();
 // === END ENERGY ===
