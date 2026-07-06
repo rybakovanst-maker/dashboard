@@ -748,14 +748,24 @@ function nyushaSaveEnergy(){
   var btn=document.getElementById('save-energy');
   if(btn){btn.textContent='Сохранено ✓';btn.disabled=true;}
   var val=function(id){var el=document.getElementById(id);return el?parseInt(el.value)||5:5;};
+  // also collect custom chips (added via ＋ button)
+  var customFromSection=function(sectionClass){
+    var out=[];
+    var section=document.querySelector('.fgroup.'+sectionClass);
+    if(!section)return out;
+    var wrap=section.nextElementSibling;
+    if(!wrap)return out;
+    wrap.querySelectorAll('.fchip.custom.on .ctext').forEach(function(el){out.push(el.textContent.trim());});
+    return out;
+  };
   var data={
     morning:val('sl-morning'),
     sleep:val('sl-sleep'),
     evening:val('sl-evening'),
     mood:val('sl-mood'),
     note:(document.getElementById('energy-note')||{}).value||'',
-    give:_eGive.slice(),
-    take:_eTake.slice()
+    give:_eGive.slice().concat(customFromSection('give')),
+    take:_eTake.slice().concat(customFromSection('take'))
   };
   try{localStorage.setItem(_eTodayKey(),JSON.stringify(data));}catch(e){}
   setTimeout(function(){
@@ -789,7 +799,7 @@ function nyushaSaveEnergy(){
     _eGive.length=0;_eTake.length=0;
     (data.give||[]).forEach(function(v){_eGive.push(v);});
     (data.take||[]).forEach(function(v){_eTake.push(v);});
-    // sync visual
+    // sync visual for standard chips
     chipDefs.forEach(function(def){
       var lbl=document.querySelector('label[for="'+def.id+'"]');
       if(!lbl)return;
@@ -797,6 +807,32 @@ function nyushaSaveEnergy(){
       if(def.arr.indexOf(txt)>-1)lbl.classList.add('on');
       else lbl.classList.remove('on');
     });
+    // restore custom chips
+    var restoreCustom=function(sectionClass,arr,stdIds){
+      var section=document.querySelector('.fgroup.'+sectionClass);
+      if(!section)return;
+      var wrap=section.nextElementSibling;
+      if(!wrap)return;
+      // remove old custom chips
+      wrap.querySelectorAll('.fchip.custom').forEach(function(el){el.remove();});
+      // standard chip texts
+      var stdTexts=[];
+      stdIds.forEach(function(id){var l=document.querySelector('label[for="'+id+'"]');if(l)stdTexts.push(l.textContent.trim());});
+      var addBtn=wrap.querySelector('.addf');
+      arr.forEach(function(txt){
+        if(stdTexts.indexOf(txt)>-1)return; // skip standard ones
+        var chip=document.createElement('span');
+        chip.className='fchip on custom';
+        var t=document.createElement('span');t.className='ctext';t.textContent=txt;
+        var x=document.createElement('span');x.className='cdel';x.textContent='✕';
+        t.addEventListener('click',function(){chip.classList.toggle('on');});
+        x.addEventListener('click',function(e){e.stopPropagation();chip.remove();});
+        chip.appendChild(t);chip.appendChild(x);
+        if(addBtn)wrap.insertBefore(chip,addBtn);else wrap.appendChild(chip);
+      });
+    };
+    restoreCustom('give',data.give||[],['fg1','fg2','fg3','fg4','fg5']);
+    restoreCustom('take',data.take||[],['ft1','ft2','ft3','ft4','ft5']);
     // restore sliders
     var pairs=[['sl-morning','morning'],['sl-sleep','sleep'],['sl-evening','evening'],['sl-mood','mood']];
     pairs.forEach(function(p){
