@@ -364,6 +364,12 @@
         <b id="gauge-val"></b><small id="gauge-label"></small>
         <span id="ev-morning"></span><span id="ev-evening"></span><span id="ev-sleep"></span>
       </div>
+      <div class="card insights">
+        <div class="chead"><b>💡 Инсайты</b><span class="sub" id="insights-sub">нет данных</span></div>
+        <div id="insights-body" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
+          Отмечай энергию каждый день —<br>через 3 дня появятся первые закономерности.
+        </div>
+      </div>
       <!-- inline measurement form -->
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 10px;">
@@ -417,12 +423,6 @@
         </div>
         <input class="note" type="text" id="energy-note" placeholder="Заметка: что повлияло на день?">
         <button class="savebtn" id="save-energy" type="button" onclick="nyushaSaveEnergy()">Сохранить</button>
-      </div>
-      <div class="card insights">
-        <div class="chead"><b>💡 Инсайты</b><span class="sub" id="insights-sub">нет данных</span></div>
-        <div id="insights-body" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
-          Отмечай энергию каждый день —<br>через 3 дня появятся первые закономерности.
-        </div>
       </div>
       <!-- chart removed -->
       <div style="display:none"><span id="chart-sub"></span><div id="chart-empty"></div><svg id="energy-chart"><path id="chart-area"/><polyline id="chart-line-evening"/><polyline id="chart-line-morning"/></svg><div id="chart-legend"><span id="chart-avg"></span></div></div>
