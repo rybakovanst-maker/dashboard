@@ -424,22 +424,8 @@
           Отмечай энергию каждый день —<br>через 3 дня появятся первые закономерности.
         </div>
       </div>
-      <div class="card">
-        <div class="chead"><b>Заряд энергии</b><span class="sub" id="chart-sub">нет данных</span></div>
-        <div id="chart-empty" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;">
-          Начни отмечать заряд утром и вечером
-        </div>
-        <svg id="energy-chart" viewBox="0 0 290 96" width="100%" height="96" style="display:none">
-          <defs>
-            <linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8B5CF6" stop-opacity=".45"/><stop offset="1" stop-color="#8B5CF6" stop-opacity="0"/></linearGradient>
-            <linearGradient id="ln" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4C6BFF"/><stop offset="1" stop-color="#C24BE8"/></linearGradient>
-          </defs>
-          <path id="chart-area" fill="url(#area)"/>
-          <polyline id="chart-line-evening" fill="none" stroke="url(#ln)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline id="chart-line-morning" fill="none" stroke="rgba(76,107,255,.55)" stroke-width="1.6" stroke-dasharray="3 3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <div id="chart-legend" class="clegend" style="display:none"><span><i style="background:var(--violet)"></i>Вечер</span><span><i style="background:rgba(76,107,255,.7)"></i>Утро</span><span id="chart-avg" style="margin-left:auto;color:var(--txt3)"></span></div>
-      </div>
+      <!-- chart removed -->
+      <div style="display:none"><span id="chart-sub"></span><div id="chart-empty"></div><svg id="energy-chart"><path id="chart-area"/><polyline id="chart-line-evening"/><polyline id="chart-line-morning"/></svg><div id="chart-legend"><span id="chart-avg"></span></div></div>
       <div class="card" id="influence-card">
         <div class="chead"><b>Что влияет на энергию</b></div>
         <div id="influence-body" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
