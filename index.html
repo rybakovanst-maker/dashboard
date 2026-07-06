@@ -369,8 +369,9 @@
     <!-- ===== ЭНЕРГИЯ ===== -->
     <section id="s-habits" class="view">
       <div class="phead"><h2>Энергия</h2></div>
+      <!-- gauge summary -->
       <div class="card">
-        <div class="chead"><b>Заряд дня</b><label class="all" for="sheet" style="cursor:pointer">＋ отметить заряд</label></div>
+        <div class="chead"><b>Заряд дня</b></div>
         <div class="energy">
           <div class="gauge">
             <svg width="92" height="92" viewBox="0 0 96 96">
@@ -381,11 +382,65 @@
             <div class="cx"><b id="gauge-val" style="color:var(--txt3)">—</b><small id="gauge-label">Утро</small></div>
           </div>
           <div class="elegend">
-            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--blue)"></span><span class="n">Заряд утром</span><span class="v" id="ev-morning" style="color:var(--txt3)">ждёт</span></label>
-            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--txt3)"></span><span class="n">Заряд вечером</span><span class="v" id="ev-evening" style="color:var(--txt3)">ждёт</span></label>
-            <label class="erow" for="sheet" style="cursor:pointer"><span class="d" style="background:var(--green)"></span><span class="n">Сон</span><span class="v" id="ev-sleep" style="color:var(--txt3)">ждёт</span></label>
+            <div class="erow"><span class="d" style="background:var(--blue)"></span><span class="n">Заряд утром</span><span class="v" id="ev-morning" style="color:var(--txt3)">ждёт</span></div>
+            <div class="erow"><span class="d" style="background:var(--txt3)"></span><span class="n">Заряд вечером</span><span class="v" id="ev-evening" style="color:var(--txt3)">ждёт</span></div>
+            <div class="erow"><span class="d" style="background:var(--green)"></span><span class="n">Сон</span><span class="v" id="ev-sleep" style="color:var(--txt3)">ждёт</span></div>
           </div>
         </div>
+      </div>
+      <!-- inline measurement form -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 10px;">
+          <button id="date-prev" type="button" onclick="nyushaDateNav(-1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+          <span id="date-label" style="font-size:.88rem;font-weight:600;color:var(--txt2);"></span>
+          <button id="date-next" type="button" onclick="nyushaDateNav(1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
+        </div>
+        <div class="ssec">🌅 Утро</div>
+        <div class="field">
+          <div class="flabel"><span>Заряд с утра</span><b id="lbl-morning">5/10</b></div>
+          <input class="slider" id="sl-morning" type="range" min="1" max="10" value="5">
+          <div class="ticks"><span>разбита</span><span>бодра</span></div>
+        </div>
+        <div class="field">
+          <div class="flabel"><span>Как спалось</span><b id="lbl-sleep">5/10</b></div>
+          <input class="slider" id="sl-sleep" type="range" min="1" max="10" value="5">
+          <div class="ticks"><span>не выспалась</span><span>отлично</span></div>
+        </div>
+        <div class="ssec pm">🌙 Вечер</div>
+        <div class="field">
+          <div class="flabel"><span>Заряд вечером</span><b id="lbl-evening">5/10</b></div>
+          <input class="slider" id="sl-evening" type="range" min="1" max="10" value="5">
+          <div class="ticks"><span>вымотана</span><span>полна сил</span></div>
+        </div>
+        <div class="field">
+          <div class="flabel"><span>Настроение</span><b id="lbl-mood">5/10</b></div>
+          <input class="slider" id="sl-mood" type="range" min="1" max="10" value="5">
+          <div class="ticks"><span>плохо</span><span>отлично</span></div>
+        </div>
+        <div class="field">
+          <div class="fgroup give">↑ Что прибавило энергию</div>
+          <div class="fchips">
+            <input class="ctl fchk" type="checkbox" id="fg1"><label class="fchip" for="fg1">Спорт</label>
+            <input class="ctl fchk" type="checkbox" id="fg2"><label class="fchip" for="fg2">Прогулка</label>
+            <input class="ctl fchk" type="checkbox" id="fg3"><label class="fchip" for="fg3">Общение</label>
+            <input class="ctl fchk" type="checkbox" id="fg4"><label class="fchip" for="fg4">Природа</label>
+            <input class="ctl fchk" type="checkbox" id="fg5"><label class="fchip" for="fg5">Тишина</label>
+            <button class="fchip addf">＋ Добавить</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="fgroup take">↓ Что забрало энергию</div>
+          <div class="fchips">
+            <input class="ctl fchk" type="checkbox" id="ft1"><label class="fchip" for="ft1">Недосып</label>
+            <input class="ctl fchk" type="checkbox" id="ft2"><label class="fchip" for="ft2">Соцсети</label>
+            <input class="ctl fchk" type="checkbox" id="ft3"><label class="fchip" for="ft3">Работа</label>
+            <input class="ctl fchk" type="checkbox" id="ft4"><label class="fchip" for="ft4">Быт</label>
+            <input class="ctl fchk" type="checkbox" id="ft5"><label class="fchip" for="ft5">Тревога</label>
+            <button class="fchip addf">＋ Добавить</button>
+          </div>
+        </div>
+        <input class="note" type="text" id="energy-note" placeholder="Заметка: что повлияло на день?">
+        <button class="savebtn" id="save-energy" type="button" onclick="nyushaSaveEnergy()">Сохранить</button>
       </div>
     </section>
 
@@ -522,64 +577,7 @@
   </nav>
 
   <input class="ctl" type="checkbox" id="sheet">
-  <div class="sheet-wrap" id="w-pm">
-    <label class="sheet-back" for="sheet" aria-label="Закрыть"></label>
-    <div class="sheet">
-      <div class="grip"></div>
-      <div class="sheet-h"><b>Замер дня</b><label class="sheet-x" for="sheet">✕</label></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;">
-        <button id="date-prev" type="button" onclick="nyushaDateNav(-1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
-        <span id="date-label" style="font-size:.88rem;font-weight:600;color:var(--txt2);"></span>
-        <button id="date-next" type="button" onclick="nyushaDateNav(1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
-      </div>
-      <div class="ssec">🌅 Утро</div>
-      <div class="field">
-        <div class="flabel"><span>Заряд с утра</span><b id="lbl-morning">5/10</b></div>
-        <input class="slider" id="sl-morning" type="range" min="1" max="10" value="5">
-        <div class="ticks"><span>разбита</span><span>бодра</span></div>
-      </div>
-      <div class="field">
-        <div class="flabel"><span>Как спалось</span><b id="lbl-sleep">5/10</b></div>
-        <input class="slider" id="sl-sleep" type="range" min="1" max="10" value="5">
-        <div class="ticks"><span>не выспалась</span><span>отлично</span></div>
-      </div>
-      <div class="ssec pm">🌙 Вечер</div>
-      <div class="field">
-        <div class="flabel"><span>Заряд вечером</span><b id="lbl-evening">5/10</b></div>
-        <input class="slider" id="sl-evening" type="range" min="1" max="10" value="5">
-        <div class="ticks"><span>вымотана</span><span>полна сил</span></div>
-      </div>
-      <div class="field">
-        <div class="flabel"><span>Настроение</span><b id="lbl-mood">5/10</b></div>
-        <input class="slider" id="sl-mood" type="range" min="1" max="10" value="5">
-        <div class="ticks"><span>плохо</span><span>отлично</span></div>
-      </div>
-      <div class="field">
-        <div class="fgroup give">↑ Что прибавило энергию</div>
-        <div class="fchips">
-          <input class="ctl fchk" type="checkbox" id="fg1"><label class="fchip" for="fg1">Спорт</label>
-          <input class="ctl fchk" type="checkbox" id="fg2"><label class="fchip" for="fg2">Прогулка</label>
-          <input class="ctl fchk" type="checkbox" id="fg3"><label class="fchip" for="fg3">Общение</label>
-          <input class="ctl fchk" type="checkbox" id="fg4"><label class="fchip" for="fg4">Природа</label>
-          <input class="ctl fchk" type="checkbox" id="fg5"><label class="fchip" for="fg5">Тишина</label>
-          <button class="fchip addf">＋ Добавить</button>
-        </div>
-      </div>
-      <div class="field">
-        <div class="fgroup take">↓ Что забрало энергию</div>
-        <div class="fchips">
-          <input class="ctl fchk" type="checkbox" id="ft1"><label class="fchip" for="ft1">Недосып</label>
-          <input class="ctl fchk" type="checkbox" id="ft2"><label class="fchip" for="ft2">Соцсети</label>
-          <input class="ctl fchk" type="checkbox" id="ft3"><label class="fchip" for="ft3">Работа</label>
-          <input class="ctl fchk" type="checkbox" id="ft4"><label class="fchip" for="ft4">Быт</label>
-          <input class="ctl fchk" type="checkbox" id="ft5"><label class="fchip" for="ft5">Тревога</label>
-          <button class="fchip addf">＋ Добавить</button>
-        </div>
-      </div>
-      <input class="note" type="text" id="energy-note" placeholder="Заметка: что повлияло на день?">
-      <button class="savebtn" id="save-energy" type="button" onclick="nyushaSaveEnergy()">Сохранить</button>
-    </div>
-  </div>
+  <div class="sheet-wrap" id="w-pm"></div>
 
   <input class="ctl" type="checkbox" id="hsheet">
   <div class="sheet-wrap" id="w-habit">
@@ -849,8 +847,6 @@ function nyushaSaveEnergy(){
   };
   try{localStorage.setItem(_eKeyForOffset(_eDateOffset),JSON.stringify(data));}catch(e){}
   setTimeout(function(){
-    var sh=document.getElementById('sheet');
-    if(sh)sh.checked=false;
     if(btn){btn.textContent='Сохранить';btn.disabled=false;}
     try{if(window._nyushaUpdateEnergy)window._nyushaUpdateEnergy();}catch(e){}
   },350);
@@ -868,14 +864,10 @@ function nyushaSaveEnergy(){
       if(lbl){lbl.addEventListener('click',function(e){e.preventDefault();_eChipToggle(lbl,def.arr);});}
     })(chipDefs[i]);
   }
-  // load saved state when sheet opens — resets to today and delegates to _eLoadForOffset
-  var sh=document.getElementById('sheet');
-  if(sh)sh.addEventListener('change',function(){
-    if(!sh.checked)return;
-    _eDateOffset=0;
-    _eUpdateDateLabel();
-    _eLoadForOffset(0);
-  });
+  // initialize inline energy form on page load
+  _eDateOffset=0;
+  _eUpdateDateLabel();
+  _eLoadForOffset(0);
 })();
 // === END ENERGY ===
 
