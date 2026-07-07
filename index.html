@@ -1050,10 +1050,11 @@ function _bodyFeel(meal,val){
   var raw=localStorage.getItem(_FOOD_KEY_PFX+key);
   var data=raw?JSON.parse(raw):{};
   if(!data[meal])data[meal]={};
-  data[meal].feel=val;
+  var newVal=data[meal].feel===val?'':val;
+  data[meal].feel=newVal;
   localStorage.setItem(_FOOD_KEY_PFX+key,JSON.stringify(data));
   var row=document.getElementById('feel-'+meal);
-  if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===val);});
+  if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===newVal&&newVal!=='');});
 }
 function _bodyNoteBlur(meal,el){
   var key=_bodyOffsetKey(_bodyDateOffset);
