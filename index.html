@@ -388,92 +388,30 @@
           <button id="date-next" type="button" onclick="nyushaDateNav(1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
         </div>
         <div class="ssec">🌅 Утро</div>
-        <div class="field">
-          <div class="flabel"><span>Заряд с утра</span></div>
-          <div class="fchips" id="emoji-morning">
-            <button class="fchip" type="button" data-v="2" onclick="_eEmoji('morning',2)">😴</button>
-            <button class="fchip" type="button" data-v="4" onclick="_eEmoji('morning',4)">😔</button>
-            <button class="fchip" type="button" data-v="6" onclick="_eEmoji('morning',6)">😐</button>
-            <button class="fchip" type="button" data-v="8" onclick="_eEmoji('morning',8)">🙂</button>
-            <button class="fchip" type="button" data-v="10" onclick="_eEmoji('morning',10)">⚡</button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="flabel"><span>Как спалось</span></div>
-          <div class="fchips" id="emoji-sleep">
-            <button class="fchip" type="button" data-v="2" onclick="_eEmoji('sleep',2)">😫</button>
-            <button class="fchip" type="button" data-v="4" onclick="_eEmoji('sleep',4)">😕</button>
-            <button class="fchip" type="button" data-v="6" onclick="_eEmoji('sleep',6)">😐</button>
-            <button class="fchip" type="button" data-v="8" onclick="_eEmoji('sleep',8)">😌</button>
-            <button class="fchip" type="button" data-v="10" onclick="_eEmoji('sleep',10)">💤</button>
-          </div>
+        <div class="fchips" id="e-morning" style="margin-bottom:4px;">
+          <button class="fchip" type="button" data-v="light" onclick="_eSet('morning','light')">Лёгкость</button>
+          <button class="fchip" type="button" data-v="neutral" onclick="_eSet('morning','neutral')">Нейтрально</button>
+          <button class="fchip" type="button" data-v="heavy" onclick="_eSet('morning','heavy')">Тяжесть</button>
         </div>
         <div class="ssec pm">🌙 Вечер</div>
-        <div class="field">
-          <div class="flabel"><span>Заряд вечером</span></div>
-          <div class="fchips" id="emoji-evening">
-            <button class="fchip" type="button" data-v="2" onclick="_eEmoji('evening',2)">😴</button>
-            <button class="fchip" type="button" data-v="4" onclick="_eEmoji('evening',4)">😔</button>
-            <button class="fchip" type="button" data-v="6" onclick="_eEmoji('evening',6)">😐</button>
-            <button class="fchip" type="button" data-v="8" onclick="_eEmoji('evening',8)">🙂</button>
-            <button class="fchip" type="button" data-v="10" onclick="_eEmoji('evening',10)">✨</button>
-          </div>
+        <div class="fchips" id="e-evening" style="margin-bottom:4px;">
+          <button class="fchip" type="button" data-v="light" onclick="_eSet('evening','light')">Лёгкость</button>
+          <button class="fchip" type="button" data-v="neutral" onclick="_eSet('evening','neutral')">Нейтрально</button>
+          <button class="fchip" type="button" data-v="heavy" onclick="_eSet('evening','heavy')">Тяжесть</button>
         </div>
-        <div class="field">
-          <div class="flabel"><span>Настроение</span></div>
-          <div class="fchips" id="emoji-mood">
-            <button class="fchip" type="button" data-v="2" onclick="_eEmoji('mood',2)">😢</button>
-            <button class="fchip" type="button" data-v="4" onclick="_eEmoji('mood',4)">😕</button>
-            <button class="fchip" type="button" data-v="6" onclick="_eEmoji('mood',6)">😐</button>
-            <button class="fchip" type="button" data-v="8" onclick="_eEmoji('mood',8)">😊</button>
-            <button class="fchip" type="button" data-v="10" onclick="_eEmoji('mood',10)">🥰</button>
-          </div>
+        <div class="ssec">📅 Как прошёл день</div>
+        <div class="fchips" id="e-day" style="margin-bottom:12px;">
+          <button class="fchip" type="button" data-v="light" onclick="_eSet('day','light')">Лёгкость</button>
+          <button class="fchip" type="button" data-v="neutral" onclick="_eSet('day','neutral')">Нейтрально</button>
+          <button class="fchip" type="button" data-v="heavy" onclick="_eSet('day','heavy')">Тяжесть</button>
         </div>
-        <div class="ssec">✨ Рефлексия</div>
-        <div class="field">
-          <div class="flabel"><span>Как прошёл день?</span></div>
-          <div class="fchips" id="refl-mood-row">
-            <button class="fchip" type="button" data-v="1" onclick="_eReflMood(1)">😔</button>
-            <button class="fchip" type="button" data-v="2" onclick="_eReflMood(2)">😐</button>
-            <button class="fchip" type="button" data-v="3" onclick="_eReflMood(3)">🙂</button>
-            <button class="fchip" type="button" data-v="4" onclick="_eReflMood(4)">😊</button>
-            <button class="fchip" type="button" data-v="5" onclick="_eReflMood(5)">💪</button>
-          </div>
-        </div>
-        <textarea class="note" id="refl-win" placeholder="Главное за сегодня..." rows="1"></textarea>
-        <div class="field">
-          <div class="fgroup give">↑ Что прибавило энергию</div>
-          <div class="fchips">
-            <input class="ctl fchk" type="checkbox" id="fg1"><label class="fchip" for="fg1">Спорт</label>
-            <input class="ctl fchk" type="checkbox" id="fg2"><label class="fchip" for="fg2">Прогулка</label>
-            <input class="ctl fchk" type="checkbox" id="fg3"><label class="fchip" for="fg3">Общение</label>
-            <input class="ctl fchk" type="checkbox" id="fg4"><label class="fchip" for="fg4">Природа</label>
-            <input class="ctl fchk" type="checkbox" id="fg5"><label class="fchip" for="fg5">Тишина</label>
-            <button class="fchip addf">＋ Добавить</button>
-          </div>
-        </div>
-        <div class="field">
-          <div class="fgroup take">↓ Что забрало энергию</div>
-          <div class="fchips">
-            <input class="ctl fchk" type="checkbox" id="ft1"><label class="fchip" for="ft1">Недосып</label>
-            <input class="ctl fchk" type="checkbox" id="ft2"><label class="fchip" for="ft2">Соцсети</label>
-            <input class="ctl fchk" type="checkbox" id="ft3"><label class="fchip" for="ft3">Работа</label>
-            <input class="ctl fchk" type="checkbox" id="ft4"><label class="fchip" for="ft4">Быт</label>
-            <input class="ctl fchk" type="checkbox" id="ft5"><label class="fchip" for="ft5">Тревога</label>
-            <button class="fchip addf">＋ Добавить</button>
-          </div>
-        </div>
-        <textarea class="note" id="energy-note" placeholder="Заметка..." rows="1"></textarea>
+        <div class="fgroup give" style="margin-bottom:6px;">↑ Что прибавило энергию</div>
+        <textarea class="note" id="energy-give" placeholder="Прогулка, общение, тишина..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <div class="fgroup take" style="margin-top:10px;margin-bottom:6px;">↓ Что убавило энергию</div>
+        <textarea class="note" id="energy-take" placeholder="Недосып, стресс, суета..." rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
         <button class="savebtn" id="save-energy" type="button" onclick="nyushaSaveEnergy()">Сохранить</button>
       </div>
-      <!-- chart removed -->
-      <div style="display:none"><span id="chart-sub"></span><div id="chart-empty"></div><svg id="energy-chart"><path id="chart-area"/><polyline id="chart-line-evening"/><polyline id="chart-line-morning"/></svg><div id="chart-legend"><span id="chart-avg"></span></div></div>
-      <div class="card" id="influence-card">
-        <div class="chead"><b>Что влияет на энергию</b></div>
-        <div id="influence-body" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
-          Данные появятся после нескольких замеров.
-        </div>
-      </div>
+      <div style="display:none"><span id="chart-sub"></span><div id="chart-empty"></div><svg id="energy-chart"><path id="chart-area"/><polyline id="chart-line-evening"/><polyline id="chart-line-morning"/></svg><div id="chart-legend"><span id="chart-avg"></span></div><span id="influence-body"></span><div id="influence-card"></div></div>
     </section>
 
     <!-- ===== ТЕЛО ===== -->
@@ -822,22 +760,13 @@
 
 <script>
 // === ENERGY (global scope so onclick works) ===
-var _eGive=[];
-var _eTake=[];
 var _eDateOffset=0;
-var _eEmojiVals={morning:6,sleep:6,evening:6,mood:6};
-function _eClosestEmoji(v){var opts=[2,4,6,8,10];return opts.reduce(function(a,b){return Math.abs(b-v)<Math.abs(a-v)?b:a;});}
-function _eEmoji(field,val){
-  _eEmojiVals[field]=val;
-  var row=document.getElementById('emoji-'+field);
-  if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',parseInt(b.getAttribute('data-v'))===val);});
-}
-var _eReflMoodVal=0;
-function _eReflMood(v){
-  _eReflMoodVal=v;
-  document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){
-    b.classList.toggle('on',parseInt(b.getAttribute('data-v'))===v);
-  });
+var _eVals={morning:'',evening:'',day:''};
+function _eSet(field,val){
+  var newVal=_eVals[field]===val?'':val;
+  _eVals[field]=newVal;
+  var row=document.getElementById('e-'+field);
+  if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===newVal&&newVal!=='');});
 }
 var _MONTHS_RU=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 var _DAYS_RU=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
@@ -859,115 +788,36 @@ function nyushaDateNav(dir){
   _eLoadForOffset(_eDateOffset);
 }
 function _eLoadForOffset(offset){
+  _eVals={morning:'',evening:'',day:''};
+  ['morning','evening','day'].forEach(function(f){
+    var row=document.getElementById('e-'+f);
+    if(row)row.querySelectorAll('.fchip').forEach(function(b){b.classList.remove('on');});
+  });
+  var gEl=document.getElementById('energy-give');if(gEl){gEl.value='';gEl.style.height='auto';}
+  var tEl=document.getElementById('energy-take');if(tEl){tEl.value='';tEl.style.height='auto';}
   var raw=localStorage.getItem(_eKeyForOffset(offset));
-  // reset chips visual
-  ['fg1','fg2','fg3','fg4','fg5','ft1','ft2','ft3','ft4','ft5'].forEach(function(id){
-    var lbl=document.querySelector('label[for="'+id+'"]');
-    if(lbl)lbl.classList.remove('on');
-  });
-  _eGive.length=0;_eTake.length=0;
-  // remove custom chips
-  ['give','take'].forEach(function(cls){
-    var sec=document.querySelector('.fgroup.'+cls);
-    if(sec&&sec.nextElementSibling)sec.nextElementSibling.querySelectorAll('.fchip.custom').forEach(function(el){el.remove();});
-  });
-  if(!raw){
-    // reset emoji fields
-    ['morning','sleep','evening','mood'].forEach(function(f){_eEmojiVals[f]=6;_eEmoji(f,6);});
-    var noteEl=document.getElementById('energy-note');if(noteEl)noteEl.value='';
-    _eReflMoodVal=0;document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){b.classList.remove('on');});
-    var rwEl=document.getElementById('refl-win');if(rwEl)rwEl.value='';
-    return;
-  }
+  if(!raw)return;
   var data;try{data=JSON.parse(raw);}catch(e){return;}
-  (data.give||[]).forEach(function(v){_eGive.push(v);});
-  (data.take||[]).forEach(function(v){_eTake.push(v);});
-  var chipDefs=[
-    {id:'fg1',arr:_eGive},{id:'fg2',arr:_eGive},{id:'fg3',arr:_eGive},{id:'fg4',arr:_eGive},{id:'fg5',arr:_eGive},
-    {id:'ft1',arr:_eTake},{id:'ft2',arr:_eTake},{id:'ft3',arr:_eTake},{id:'ft4',arr:_eTake},{id:'ft5',arr:_eTake}
-  ];
-  chipDefs.forEach(function(def){
-    var lbl=document.querySelector('label[for="'+def.id+'"]');
-    if(!lbl)return;
-    if(def.arr.indexOf(lbl.textContent.trim())>-1)lbl.classList.add('on');
-  });
-  ['morning','sleep','evening','mood'].forEach(function(f){if(data[f]!=null)_eEmoji(f,_eClosestEmoji(data[f]));});
-  var noteEl=document.getElementById('energy-note');if(noteEl){noteEl.value=data.note||'';noteEl.style.height='auto';noteEl.style.height=noteEl.scrollHeight+'px';}
-  _eReflMoodVal=0;document.querySelectorAll('#refl-mood-row .fchip').forEach(function(b){b.classList.remove('on');});
-  if(data.refl_mood)_eReflMood(data.refl_mood);
-  var rwEl=document.getElementById('refl-win');if(rwEl){rwEl.value=data.refl_win||'';rwEl.style.height='auto';rwEl.style.height=rwEl.scrollHeight+'px';}
-  // restore custom chips
-  var restoreCustom=function(sectionClass,arr,stdIds){
-    var section=document.querySelector('.fgroup.'+sectionClass);if(!section)return;
-    var wrap=section.nextElementSibling;if(!wrap)return;
-    var stdTexts=[];stdIds.forEach(function(id){var l=document.querySelector('label[for="'+id+'"]');if(l)stdTexts.push(l.textContent.trim());});
-    var addBtn=wrap.querySelector('.addf');
-    arr.forEach(function(txt){
-      if(stdTexts.indexOf(txt)>-1)return;
-      var chip=document.createElement('span');chip.className='fchip on custom';
-      var t=document.createElement('span');t.className='ctext';t.textContent=txt;
-      var x=document.createElement('span');x.className='cdel';x.textContent='✕';
-      t.addEventListener('click',function(){chip.classList.toggle('on');});
-      x.addEventListener('click',function(e){e.stopPropagation();chip.remove();});
-      chip.appendChild(t);chip.appendChild(x);
-      if(addBtn)wrap.insertBefore(chip,addBtn);else wrap.appendChild(chip);
-    });
-  };
-  restoreCustom('give',data.give||[],['fg1','fg2','fg3','fg4','fg5']);
-  restoreCustom('take',data.take||[],['ft1','ft2','ft3','ft4','ft5']);
-}
-function _eChipToggle(label,arr){
-  var txt=label.textContent.trim();
-  var idx=arr.indexOf(txt);
-  if(idx>-1){arr.splice(idx,1);label.classList.remove('on');}
-  else{arr.push(txt);label.classList.add('on');}
+  ['morning','evening','day'].forEach(function(f){if(data[f])_eSet(f,data[f]);});
+  if(gEl&&data.give){gEl.value=data.give;gEl.style.height='auto';gEl.style.height=gEl.scrollHeight+'px';}
+  if(tEl&&data.take){tEl.value=data.take;tEl.style.height='auto';tEl.style.height=tEl.scrollHeight+'px';}
 }
 function nyushaSaveEnergy(){
   try{if(document.activeElement)document.activeElement.blur();}catch(e){}
   var btn=document.getElementById('save-energy');
   if(btn){btn.textContent='Сохранено ✓';btn.disabled=true;}
-  // also collect custom chips (added via ＋ button)
-  var customFromSection=function(sectionClass){
-    var out=[];
-    var section=document.querySelector('.fgroup.'+sectionClass);
-    if(!section)return out;
-    var wrap=section.nextElementSibling;
-    if(!wrap)return out;
-    wrap.querySelectorAll('.fchip.custom.on .ctext').forEach(function(el){out.push(el.textContent.trim());});
-    return out;
-  };
-  var uniq=function(arr){var s={};return arr.filter(function(v){return s[v]?false:(s[v]=true);});};
   var data={
-    morning:_eEmojiVals.morning||6,
-    sleep:_eEmojiVals.sleep||6,
-    evening:_eEmojiVals.evening||6,
-    mood:_eEmojiVals.mood||6,
-    note:(document.getElementById('energy-note')||{}).value||'',
-    refl_mood:_eReflMoodVal||0,
-    refl_win:(document.getElementById('refl-win')||{}).value||'',
-    give:uniq(_eGive.slice().concat(customFromSection('give'))),
-    take:uniq(_eTake.slice().concat(customFromSection('take')))
+    morning:_eVals.morning||'',
+    evening:_eVals.evening||'',
+    day:_eVals.day||'',
+    give:(document.getElementById('energy-give')||{}).value||'',
+    take:(document.getElementById('energy-take')||{}).value||''
   };
   try{localStorage.setItem(_eKeyForOffset(_eDateOffset),JSON.stringify(data));}catch(e){}
-  setTimeout(function(){
-    if(btn){btn.textContent='Сохранить';btn.disabled=false;}
-    try{if(window._nyushaUpdateEnergy)window._nyushaUpdateEnergy();}catch(e){}
-  },350);
+  setTimeout(function(){if(btn){btn.textContent='Сохранить';btn.disabled=false;}},350);
   try{if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback)Telegram.WebApp.HapticFeedback.notificationOccurred('success');}catch(e){}
 }
-// wire chips and sheet open
 (function(){
-  var chipDefs=[
-    {id:'fg1',arr:_eGive},{id:'fg2',arr:_eGive},{id:'fg3',arr:_eGive},{id:'fg4',arr:_eGive},{id:'fg5',arr:_eGive},
-    {id:'ft1',arr:_eTake},{id:'ft2',arr:_eTake},{id:'ft3',arr:_eTake},{id:'ft4',arr:_eTake},{id:'ft5',arr:_eTake}
-  ];
-  for(var i=0;i<chipDefs.length;i++){
-    (function(def){
-      var lbl=document.querySelector('label[for="'+def.id+'"]');
-      if(lbl){lbl.addEventListener('click',function(e){e.preventDefault();_eChipToggle(lbl,def.arr);});}
-    })(chipDefs[i]);
-  }
-  // initialize inline energy form on page load
   _eDateOffset=0;
   _eUpdateDateLabel();
   _eLoadForOffset(0);
