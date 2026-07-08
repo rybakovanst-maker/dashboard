@@ -374,12 +374,7 @@
         <b id="gauge-val"></b><small id="gauge-label"></small>
         <span id="ev-morning"></span><span id="ev-evening"></span><span id="ev-sleep"></span>
       </div>
-      <div class="card insights">
-        <div class="chead"><b>💡 Инсайты</b><span class="sub" id="insights-sub">нет данных</span></div>
-        <div id="insights-body" style="padding:20px 0;text-align:center;color:var(--txt3);font-size:.85rem;line-height:1.6;">
-          Отмечай энергию каждый день —<br>через 3 дня появятся первые закономерности.
-        </div>
-      </div>
+      <div style="display:none"><div id="insights-body"></div><span id="insights-sub"></span></div>
       <!-- inline measurement form -->
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 10px;">
@@ -388,13 +383,13 @@
           <button id="date-next" type="button" onclick="nyushaDateNav(1)" style="background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
         </div>
         <div class="ssec">🌅 Утро</div>
-        <div class="fchips" id="e-morning" style="margin-bottom:4px;">
+        <div class="fchips" id="e-morning" style="margin-bottom:16px;">
           <button class="fchip" type="button" data-v="light" onclick="_eSet('morning','light')">Лёгкость</button>
           <button class="fchip" type="button" data-v="neutral" onclick="_eSet('morning','neutral')">Нейтрально</button>
           <button class="fchip" type="button" data-v="heavy" onclick="_eSet('morning','heavy')">Тяжесть</button>
         </div>
-        <div class="ssec pm">🌙 Вечер</div>
-        <div class="fchips" id="e-evening" style="margin-bottom:4px;">
+        <div class="ssec">🌙 Вечер</div>
+        <div class="fchips" id="e-evening" style="margin-bottom:16px;">
           <button class="fchip" type="button" data-v="light" onclick="_eSet('evening','light')">Лёгкость</button>
           <button class="fchip" type="button" data-v="neutral" onclick="_eSet('evening','neutral')">Нейтрально</button>
           <button class="fchip" type="button" data-v="heavy" onclick="_eSet('evening','heavy')">Тяжесть</button>
