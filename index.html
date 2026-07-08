@@ -1220,7 +1220,10 @@ function nyushaRenderGoals(){
   list.innerHTML='';
   if(!goals.length){if(empty)empty.style.display='';return;}
   if(empty)empty.style.display='none';
-  for(var i=0;i<goals.length;i++){
+  // sort: undone first, done last (preserve relative order within each group)
+  var indexed=goals.map(function(g,i){return{g:g,i:i};});
+  indexed.sort(function(a,b){return (a.g.done?1:0)-(b.g.done?1:0);});
+  for(var i=0;i<indexed.length;i++){
     (function(idx,g){
       var div=document.createElement('div');
       div.className='goal goal-row';
@@ -1254,7 +1257,7 @@ function nyushaRenderGoals(){
         });
       })(idx,g.name);
       list.appendChild(div);
-    })(i,goals[i]);
+    })(indexed[i].i,indexed[i].g);
   }
 }
 function nyushaCreateGoal(){
